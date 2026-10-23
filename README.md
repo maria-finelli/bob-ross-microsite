@@ -16,7 +16,7 @@ Part dashboard, part little corner of his studio, set against the show’s black
 
 - **Today’s episode:** A different painting sits on the easel each day, ready to watch whenever you want to settle in.
 - **The painting library:** 387 episodes across all 31 seasons of _The Joy of Painting_, browsable by season. Every one plays right on the page, streamed from the official [Bob Ross YouTube channel](https://www.youtube.com/@bobross_thejoyofpainting).
-- **Bob Ross Radio:** The real show playing back to back: the music, the brush and that voice. Pick a station (the early years, the final seasons, winter scenes and more) and leave it on while you work.
+- **Bob Ross Radio:** The loungey, jazzy music from the show. It opens on the theme, “Interlude” by Larry Owens, then plays the rest of his 1982 album _Light Lounge_. Or switch to a station of full episodes (the early years, the final seasons, winter scenes and more) and leave Bob on while you work.
 - **An ASMR soundboard:** Sky strokes, fan brush taps, knife mixing, a mountain pull, a swish in the thinner and a good “beat the devil out of it.” Plus a squirrel corner with real recordings, including one for Peapod. Layer as many as you like.
 - **Paint a happy little scene:** Click to plant happy trees, little bushes, mountains and clouds under four different skies. Drag to grow a whole forest, hit “Happy accident” for a surprise and save what you make.
 - **A word from Bob:** A few of his quotes, drifting by at the bottom of the page.
@@ -33,7 +33,7 @@ Then open http://localhost:8080.
 
 ## Credits
 
-Episodes and thumbnails stream from the official Bob Ross YouTube channel. Brush and knife sounds are generated in the browser.
+Episodes and thumbnails stream from the official Bob Ross YouTube channel. Studio music streams from the official [Larry Owens](https://www.youtube.com/channel/UCjZpA-PrdQkWMRVISR1BhSA) channel on YouTube (Light Lounge, ℗ 1982 UPM-US). “Interlude” is the show’s theme; the rest of the album may not all have aired. Brush and knife sounds are generated in the browser.
 
 Squirrel recordings from Wikimedia Commons:
 

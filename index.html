@@ -1224,9 +1224,9 @@
               >
             </h1>
             <p class="hero-lede">
-              Every episode of The Joy of Painting, a radio that plays the real
-              show back to back, a studio soundboard with a few squirrel friends
-              and a canvas for your own happy little trees.
+              Every episode of The Joy of Painting, a radio with the show's
+              lounge music, a studio soundboard with a few squirrel friends and
+              a canvas for your own happy little trees.
             </p>
             <div class="hero-actions">
               <a class="btn btn-primary" href="#radio" id="heroRadio"
@@ -1284,9 +1284,10 @@
           <div class="section-head reveal">
             <h2 id="radioTitle">Bob Ross Radio</h2>
             <p>
-              The actual show, episode after episode: the music, the brush and
-              that voice. Leave it on while you work and layer in sounds from
-              the studio below.
+              Start with the show's own lounge music: Larry Owens's theme,
+              "Interlude", and the rest of his 1982 album. Or switch to a
+              station of full episodes and let Bob keep you company. Layer in
+              sounds from the studio below.
             </p>
           </div>
           <div class="radio reveal">
@@ -1360,7 +1361,16 @@
             </div>
           </div>
           <p class="fineprint">
-            Episodes stream from the official
+            Studio music streams from the official
+            <a
+              href="https://www.youtube.com/channel/UCjZpA-PrdQkWMRVISR1BhSA"
+              target="_blank"
+              rel="noopener"
+              >Larry Owens</a
+            >
+            channel on YouTube. "Interlude" is the Joy of Painting theme; the
+            rest of Light Lounge is the same 1982 album and may not all have
+            aired. Episodes stream from the official
             <a
               href="https://www.youtube.com/@bobross_thejoyofpainting"
               target="_blank"
@@ -2056,7 +2066,26 @@
       // ============================================
       // BOB ROSS RADIO: the real show via the YouTube IFrame API
       // ============================================
+      // The show's theme, "Interlude", and the rest of Larry Owens's 1982
+      // Light Lounge album, from YouTube's official Larry Owens - Topic channel.
+      // Season 0 marks a music track rather than an episode.
+      const LIGHT_LOUNGE = [
+        [0, 1, "Interlude", "f4OBt1lyXrI"],
+        [0, 2, "Breezin' Along", "2JouwUhb3v4"],
+        [0, 3, "Free Flite", "hMTw0qv1oi4"],
+        [0, 4, "Tradewinds", "Ocq5wrJX08o"],
+        [0, 5, "Members Only", "E-FTd8JuMro"],
+        [0, 6, "Lady's Man", "BNkFXq71Pjo"],
+      ];
+      const radioLabel = (it) =>
+        it[0]
+          ? label(it)
+          : it[1] === 1
+            ? "Larry Owens, the Joy of Painting theme"
+            : "Larry Owens, Light Lounge (1982)";
+
       const STATIONS = [
+        { id: "music", name: "Studio music", tracks: LIGHT_LOUNGE },
         { id: "all", name: "All seasons", pick: () => true },
         { id: "early", name: "The early years", pick: (e) => e[0] <= 10 },
         {
@@ -2091,7 +2120,9 @@
         return a;
       }
       function buildQueue() {
-        queue = shuffle(EPISODES.filter(station.pick));
+        queue = station.tracks
+          ? station.tracks.slice()
+          : shuffle(EPISODES.filter(station.pick));
         qi = 0;
       }
 
@@ -2113,18 +2144,20 @@
       function renderNow() {
         const ep = queue[qi];
         document.getElementById("nowTitle").textContent = noOrphan(ep[2]);
-        document.getElementById("nowSub").textContent = label(ep);
+        document.getElementById("nowSub").textContent = radioLabel(ep);
         document.getElementById("radioFallbackLink").href =
           `https://www.youtube.com/watch?v=${ep[3]}`;
         document.getElementById("radioScreen").style.backgroundImage =
-          `url(${thumb(ep[3], "maxresdefault")})`;
-        const next = [1, 2, 3, 4, 5, 6].map((n) => queue[(qi + n) % queue.length]);
+          `url(${thumb(ep[3], ep[0] ? "maxresdefault" : "hqdefault")})`;
+        const next = [1, 2, 3, 4, 5, 6]
+          .slice(0, queue.length - 1)
+          .map((n) => queue[(qi + n) % queue.length]);
         document.getElementById("upNext").innerHTML = next
           .map(
             (ep, n) => `
     <li><button data-offset="${n + 1}">
       <img src="${thumb(ep[3])}" alt="" width="80" height="45" loading="lazy">
-      <span class="txt"><span class="t">${esc(ep[2])}</span><span class="s">${label(ep)}</span></span>
+      <span class="txt"><span class="t">${esc(ep[2])}</span><span class="s">${radioLabel(ep)}</span></span>
     </button></li>`,
           )
           .join("");
