@@ -1,17 +1,29 @@
-# The Joy of Painting — A Bob Ross Experience
+# A Little Bob Ross Project 🎨
 
-An unofficial fan tribute to _The Joy of Painting_, staged like the show's black studio set.
+A playful, single-page tribute to someone who made creating things feel a little less intimidating.
 
-## What's on the page
+## Why I made this
 
-- **Episodes**: 387 of the 403 episodes across all 31 seasons. Each card plays the official upload from the [Bob Ross YouTube channel](https://www.youtube.com/@bobross_thejoyofpainting) in a modal.
-- **Bob Ross Radio**: the real show back to back through the YouTube IFrame API, with stations (all seasons, early, middle, final, winter scenes), previous/next and an up-next queue.
-- **Studio soundboard**: eight brush, knife and easel sounds synthesized in the browser, plus four real squirrel recordings in `sounds/` (Peapod chatter, treetop chirps, snack time, alarm call).
-- **Paint a happy little scene**: a canvas generator for happy trees, bushes, mountains and clouds over four skies. Save as PNG.
+I watched Bob Ross growing up, and I’m still amazed by him as an adult. He’d start with a blank canvas and casually pull an entire world out of it, all while telling you that you could do it too. Like it was no big deal.
 
-## Running locally
+That always stuck with me. The kindness, the humility and the way he made room for anyone to try.
 
-The YouTube player won't start from a `file://` page, so serve the folder:
+I wanted to make a little place on the internet that captures some of that feeling. Somewhere you can hang out, play with familiar sounds, discover a painting and enjoy a quiet moment.
+
+## What’s inside
+
+Part dashboard, part little corner of his studio, set against the show’s black backdrop so the paintings carry all the color.
+
+- **Today’s episode:** A different painting sits on the easel each day, ready to watch whenever you want to settle in.
+- **The painting library:** 387 episodes across all 31 seasons of _The Joy of Painting_, browsable by season. Every one plays right on the page, streamed from the official [Bob Ross YouTube channel](https://www.youtube.com/@bobross_thejoyofpainting).
+- **Bob Ross Radio:** The real show playing back to back: the music, the brush and that voice. Pick a station (the early years, the final seasons, winter scenes and more) and leave it on while you work.
+- **An ASMR soundboard:** Sky strokes, fan brush taps, knife mixing, a mountain pull, a swish in the thinner and a good “beat the devil out of it.” Plus a squirrel corner with real recordings, including one for Peapod. Layer as many as you like.
+- **Paint a happy little scene:** Click to plant happy trees, little bushes, mountains and clouds under four different skies. Drag to grow a whole forest, hit “Happy accident” for a surprise and save what you make.
+- **A word from Bob:** A few of his quotes, drifting by at the bottom of the page.
+
+## Running it locally
+
+The episode player needs a web address rather than a local file, so serve the folder:
 
 ```sh
 python3 -m http.server 8080
@@ -19,17 +31,17 @@ python3 -m http.server 8080
 
 Then open http://localhost:8080.
 
-## Data
-
-Episode ids come from the official channel's season playlists (`EPISODES` in `index.html`: season, episode, title, video id). Every id was checked as embeddable on 2026-10-23. Thumbnails load from `i.ytimg.com`.
-
 ## Credits
+
+Episodes and thumbnails stream from the official Bob Ross YouTube channel. Brush and knife sounds are generated in the browser.
 
 Squirrel recordings from Wikimedia Commons:
 
-- `peapod-grey-squirrel.mp3`: [Grey Squirrel (Sciurus carolinensis)](<https://commons.wikimedia.org/wiki/File:Grey_Squirrel_(Sciurus_carolinensis)_(W1CDR0001470_BD12).ogg>), British Library, CC BY-SA 4.0
-- `treetop-chirps.mp3`: [Three Squirrels chirping](https://commons.wikimedia.org/wiki/File:Three_Squirrels_chirping.ogg), Jidanni, CC BY-SA 4.0
-- `snack-time.mp3`: [A squirrel chirping while eating a pomegranate](https://commons.wikimedia.org/wiki/File:A_squirrel_chirping_while_eating_a_pomegranate,_Bangalore,_India.flac), Subhashish Panigrahi, CC BY-SA 4.0
-- `douglas-alarm.mp3`: [Tamiasciurus douglasii](https://commons.wikimedia.org/wiki/File:Tamiasciurus_douglasii.ogg), Parande, CC BY-SA 3.0
+- **Peapod:** [Grey Squirrel (Sciurus carolinensis)](<https://commons.wikimedia.org/wiki/File:Grey_Squirrel_(Sciurus_carolinensis)_(W1CDR0001470_BD12).ogg>), British Library, CC BY-SA 4.0
+- **Treetop chirps:** [Three Squirrels chirping](https://commons.wikimedia.org/wiki/File:Three_Squirrels_chirping.ogg), Jidanni, CC BY-SA 4.0
+- **Snack time:** [A squirrel chirping while eating a pomegranate](https://commons.wikimedia.org/wiki/File:A_squirrel_chirping_while_eating_a_pomegranate,_Bangalore,_India.flac), Subhashish Panigrahi, CC BY-SA 4.0
+- **Alarm call:** [Tamiasciurus douglasii](https://commons.wikimedia.org/wiki/File:Tamiasciurus_douglasii.ogg), Parande, CC BY-SA 3.0
 
-Bob Ross and The Joy of Painting are trademarks of Bob Ross Inc. This site is not affiliated with Bob Ross Inc.
+---
+
+An independent fan project, made with appreciation. Not affiliated with or endorsed by Bob Ross Inc.
