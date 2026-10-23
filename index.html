@@ -1,2170 +1,3139 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The Joy of Painting — A Bob Ross Experience</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Inter:wght@300;400;500;600&family=Caveat:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<style>
-/* ============================================
-   BOB ROSS DASHBOARD — THE JOY OF PAINTING
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark" />
+    <title>The Joy of Painting — A Bob Ross Experience</title>
+    <meta
+      name="description"
+      content="An unofficial fan tribute to The Joy of Painting: every episode, Bob Ross Radio, a studio soundboard and a happy little tree generator."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,500;1,600&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* ============================================
+   THE JOY OF PAINTING — STUDIO SET
+   The show's black backdrop is the page; the
+   paintings carry all the color.
    ============================================ */
 
-:root {
-  --canvas-white: #FDFAF4;
-  --canvas-cream: #EEEAD9;
-  --canvas-warm: #E4DFD0;
-  --titanium-white: #F8F5EE;
-  --van-dyke-brown: #3B2F2F;
-  --text-primary: #2C2118;
-  --text-secondary: #6B5E52;
-  --text-muted: #9A8E80;
-
-  --bob-blue: #6A9FCA;
-  --bob-blue-light: #89B5D8;
-  --bob-blue-pale: #DCE9F4;
-  --bob-blue-deep: #4A7FA8;
-
-  --sap-green: #5A8F4E;
-  --sap-green-light: #E0EDD9;
-  --dark-sienna: #7A4B2A;
-  --cadmium-yellow: #E2A928;
-  --cadmium-yellow-light: #F5ECCE;
-  --indian-yellow: #D4943A;
-  --alizarin-crimson: #A03030;
-  --phthalo-blue: #3B6D96;
-
-  /* Beveled edges — the 80s/90s OS look */
-  --bevel-light: #FFFDF7;
-  --bevel-dark: #C4BDA8;
-  --bevel-darker: #A89E88;
-  --border-light: #D6D0C0;
-  --border-med: #C4BDA8;
-
-  --shadow-sm: 1px 1px 0 var(--bevel-dark);
-  --shadow-md: 2px 2px 0 var(--bevel-dark);
-  --shadow-lg: 3px 3px 0 var(--bevel-dark);
-
-  --crt-green: #6CB86C;
-  --system-font: 'IBM Plex Mono', monospace;
-  --radius: 4px;
-  --radius-sm: 3px;
-}
-
-* { margin: 0; padding: 0; box-sizing: border-box; }
-
-html { scroll-behavior: smooth; }
-
-body {
-  font-family: 'Inter', -apple-system, sans-serif;
-  background: var(--canvas-cream);
-  color: var(--text-primary);
-  overflow-x: hidden;
-  min-height: 100vh;
-}
-
-/* ---- RETRO DITHER PATTERN ---- */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg width='4' height='4' viewBox='0 0 4 4' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='0' y='0' width='1' height='1' fill='%23000' opacity='0.015'/%3E%3Crect x='2' y='2' width='1' height='1' fill='%23000' opacity='0.015'/%3E%3C/svg%3E");
-  pointer-events: none;
-  z-index: 9999;
-}
-
-/* System-style labels */
-.system-label {
-  font-family: var(--system-font);
-  font-size: 0.62rem;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  color: var(--text-muted);
-}
-
-/* Retro status indicator */
-.status-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--crt-green);
-  box-shadow: 0 0 6px rgba(126,200,126,0.4);
-  animation: statusPulse 2s ease-in-out infinite;
-}
-
-@keyframes statusPulse {
-  0%, 100% { opacity: 0.7; }
-  50% { opacity: 1; box-shadow: 0 0 10px rgba(126,200,126,0.6); }
-}
-
-/* ---- TOP BAR (Classic Menu Bar) ---- */
-.topbar {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  padding: 0 24px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: var(--canvas-cream);
-  border-bottom: 2px solid var(--bevel-dark);
-  box-shadow: inset 0 -1px 0 var(--bevel-darker);
-}
-
-.topbar-logo {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.topbar-logo img {
-  height: 22px;
-  display: block;
-}
-
-.topbar-menu {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.topbar-menu-item {
-  font-family: var(--system-font);
-  font-size: 0.68rem;
-  color: var(--text-primary);
-  cursor: pointer;
-  padding: 2px 10px;
-  border-radius: 0;
-  transition: none;
-}
-
-.topbar-menu-item:hover {
-  background: var(--van-dyke-brown);
-  color: var(--canvas-white);
-}
-
-.topbar-quote {
-  font-family: 'Playfair Display', serif;
-  font-style: italic;
-  font-size: 0.72rem;
-  color: var(--text-muted);
-  display: none;
-}
-
-@media (min-width: 900px) {
-  .topbar-quote { display: block; }
-}
-
-@media (max-width: 900px) {
-  .topbar-menu { display: none; }
-}
-
-.topbar-time {
-  font-family: var(--system-font);
-  font-size: 0.65rem;
-  color: var(--text-muted);
-  font-weight: 400;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-/* ---- HERO GREETING ---- */
-.hero-greeting {
-  padding: 40px 32px 24px;
-  max-width: 1600px;
-  margin: 0 auto;
-}
-
-.hero-greeting h1 {
-  font-family: 'Caveat', cursive;
-  font-size: clamp(2rem, 4vw, 3.2rem);
-  font-weight: 700;
-  color: var(--van-dyke-brown);
-  line-height: 1.2;
-  margin-bottom: 6px;
-}
-
-.hero-greeting h1 em { color: var(--bob-blue); font-style: normal; }
-
-.hero-system-msg {
-  font-family: var(--system-font);
-  font-size: 0.65rem;
-  color: var(--crt-green);
-  letter-spacing: 0.5px;
-  margin-bottom: 8px;
-  opacity: 0.7;
-}
-
-.hero-greeting p:last-child {
-  font-family: 'Playfair Display', serif;
-  font-style: italic;
-  font-size: 1rem;
-  color: var(--text-secondary);
-}
-
-/* ---- DASHBOARD GRID ---- */
-.dashboard {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  grid-template-rows: auto;
-  gap: 20px;
-  padding: 0 32px 40px;
-  max-width: 1600px;
-  margin: 0 auto;
-}
-
-/* Grid areas for larger screens */
-.panel-episodes   { grid-column: 1 / 3; grid-row: 1; }
-.panel-radio      { grid-column: 3; grid-row: 1; }
-.panel-soundboard { grid-column: 1 / 2; grid-row: 2; }
-.panel-wallpapers { grid-column: 2 / 3; grid-row: 2; }
-.panel-storybooks { grid-column: 3; grid-row: 2; }
-.panel-merch      { grid-column: 1 / 4; grid-row: 3; }
-.panel-quote      { grid-column: 1 / 4; grid-row: 4; }
-
-/* ---- PANEL BASE (Classic Window) ---- */
-.panel {
-  background: var(--titanium-white);
-  border-radius: var(--radius);
-  overflow: hidden;
-  border: 2px solid var(--bevel-dark);
-  border-top-color: var(--bevel-light);
-  border-left-color: var(--bevel-light);
-  box-shadow: 2px 2px 0 rgba(59,47,47,0.08);
-}
-
-.panel-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 12px;
-  border-bottom: 2px solid var(--bevel-dark);
-  border-bottom-color: var(--border-light);
-  background: linear-gradient(90deg,
-    var(--bob-blue) 0%,
-    var(--bob-blue-light) 40%,
-    var(--canvas-cream) 100%
-  );
-}
-
-.panel-header-left {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.panel-icon {
-  width: 24px;
-  height: 24px;
-  border-radius: var(--radius-sm);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.85rem;
-  color: white;
-}
-
-.panel-icon.blue, .panel-icon.green, .panel-icon.yellow,
-.panel-icon.brown, .panel-icon.pink {
-  background: transparent;
-}
-
-.panel-title {
-  font-family: var(--system-font);
-  font-size: 0.82rem;
-  font-weight: 500;
-  color: white;
-  text-shadow: 1px 1px 0 rgba(0,0,0,0.15);
-}
-
-.panel-subtitle {
-  font-family: var(--system-font);
-  font-size: 0.55rem;
-  color: rgba(255,255,255,0.75);
-  letter-spacing: 0.5px;
-}
-
-.panel-action {
-  font-family: var(--system-font);
-  font-size: 0.62rem;
-  color: var(--text-primary);
-  text-decoration: none;
-  font-weight: 500;
-  cursor: pointer;
-  background: var(--canvas-cream);
-  border: 2px solid var(--bevel-dark);
-  border-top-color: var(--bevel-light);
-  border-left-color: var(--bevel-light);
-  padding: 2px 10px;
-  border-radius: var(--radius-sm);
-}
-
-.panel-action:hover { background: var(--canvas-warm); }
-.panel-action:active { border-top-color: var(--bevel-dark); border-left-color: var(--bevel-dark); border-bottom-color: var(--bevel-light); border-right-color: var(--bevel-light); }
-
-.panel-body {
-  padding: 20px 24px;
-}
-
-/* ---- EPISODES PANEL ---- */
-.ep-season-pills {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-  margin-bottom: 16px;
-}
-
-.ep-pill {
-  padding: 3px 10px;
-  border-radius: var(--radius-sm);
-  background: var(--canvas-cream);
-  border: 2px solid var(--bevel-dark);
-  border-top-color: var(--bevel-light);
-  border-left-color: var(--bevel-light);
-  font-family: var(--system-font);
-  font-size: 0.65rem;
-  font-weight: 500;
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: none;
-}
-
-.ep-pill:hover { background: var(--canvas-warm); }
-.ep-pill:active { border-top-color: var(--bevel-dark); border-left-color: var(--bevel-dark); border-bottom-color: var(--bevel-light); border-right-color: var(--bevel-light); }
-.ep-pill.active { background: var(--bob-blue); color: white; border-color: var(--bob-blue-deep); }
-
-.ep-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 14px;
-}
-
-.ep-card {
-  border-radius: var(--radius-sm);
-  overflow: hidden;
-  cursor: pointer;
-  background: var(--titanium-white);
-  border: 2px solid var(--bevel-dark);
-  border-top-color: var(--bevel-light);
-  border-left-color: var(--bevel-light);
-}
-
-.ep-thumb {
-  position: relative;
-  aspect-ratio: 16/9;
-  overflow: hidden;
-}
-
-.ep-thumb-overlay {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0,0,0,0.2);
-  opacity: 0;
-}
-
-.ep-card:hover .ep-thumb-overlay { opacity: 1; }
-
-.ep-play-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-}
-
-.ep-play-icon svg { width: 14px; height: 14px; fill: var(--bob-blue); margin-left: 2px; }
-
-.ep-meta {
-  padding: 10px 12px;
-}
-
-.ep-meta-label {
-  font-family: var(--system-font);
-  font-size: 0.6rem;
-  letter-spacing: 0.5px;
-  color: var(--bob-blue-deep);
-  font-weight: 500;
-  margin-bottom: 2px;
-}
-
-.ep-meta-title {
-  font-family: 'Playfair Display', serif;
-  font-size: 0.88rem;
-  font-weight: 600;
-  color: var(--van-dyke-brown);
-  line-height: 1.3;
-}
-
-.ep-load-more {
-  display: block;
-  margin: 16px auto 0;
-  padding: 6px 20px;
-  background: var(--canvas-cream);
-  border: 2px solid var(--bevel-dark);
-  border-top-color: var(--bevel-light);
-  border-left-color: var(--bevel-light);
-  border-radius: var(--radius-sm);
-  font-family: var(--system-font);
-  font-size: 0.68rem;
-  font-weight: 500;
-  color: var(--text-primary);
-  cursor: pointer;
-}
-
-.ep-load-more:hover { background: var(--canvas-warm); }
-.ep-load-more:active { border-top-color: var(--bevel-dark); border-left-color: var(--bevel-dark); border-bottom-color: var(--bevel-light); border-right-color: var(--bevel-light); }
-
-/* ---- RADIO PANEL ---- */
-.radio-vinyl-wrap {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 20px;
-}
-
-.radio-vinyl {
-  position: relative;
-  width: 140px;
-  height: 140px;
-}
-
-.vinyl-disc {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  background:
-    radial-gradient(circle, #1a1410 18%, transparent 18.5%),
-    radial-gradient(circle, #2a2420 19%, transparent 19.5%),
-    radial-gradient(circle, #1a1410 35%, transparent 35.5%),
-    repeating-radial-gradient(circle, rgba(255,255,255,0.04) 0px, transparent 1px, transparent 3px),
-    radial-gradient(circle, #222 0%, #111 100%);
-  box-shadow: 0 4px 20px rgba(59,47,47,0.12);
-}
-
-.vinyl-disc.spinning { animation: spin 3s linear infinite; }
-
-@keyframes spin { to { transform: rotate(360deg); } }
-
-.vinyl-center {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--bob-blue), var(--bob-blue-deep));
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  pointer-events: none;
-}
-
-.vinyl-center span {
-  font-family: 'Caveat', cursive;
-  font-size: 0.4rem;
-  color: white;
-  font-weight: 600;
-}
-
-.radio-info {
-  text-align: center;
-  margin-bottom: 16px;
-}
-
-.radio-now-label {
-  font-size: 0.6rem;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: var(--bob-blue);
-  margin-bottom: 4px;
-}
-
-.radio-track-name {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.05rem;
-  font-weight: 600;
-  color: var(--van-dyke-brown);
-  margin-bottom: 2px;
-}
-
-.radio-track-artist {
-  font-size: 0.78rem;
-  color: var(--text-muted);
-  font-style: italic;
-}
-
-.radio-controls {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 14px;
-  margin-bottom: 12px;
-}
-
-.radio-ctrl {
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-sm);
-  border: 2px solid var(--bevel-dark);
-  border-top-color: var(--bevel-light);
-  border-left-color: var(--bevel-light);
-  background: var(--canvas-cream);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  color: var(--text-secondary);
-}
-
-.radio-ctrl:hover { background: var(--canvas-warm); }
-.radio-ctrl:active { border-top-color: var(--bevel-dark); border-left-color: var(--bevel-dark); border-bottom-color: var(--bevel-light); border-right-color: var(--bevel-light); }
-
-.radio-ctrl.play {
-  width: 44px;
-  height: 44px;
-  background: var(--bob-blue);
-  border-color: var(--bob-blue-deep);
-  border-top-color: var(--bob-blue-light);
-  border-left-color: var(--bob-blue-light);
-  color: white;
-}
-
-.radio-ctrl.play:hover { background: var(--bob-blue-deep); }
-
-.radio-ctrl svg { width: 16px; height: 16px; fill: currentColor; }
-.radio-ctrl.play svg { width: 20px; height: 20px; }
-
-.radio-progress {
-  height: 3px;
-  background: var(--border-light);
-  border-radius: 3px;
-  overflow: hidden;
-  margin-bottom: 14px;
-}
-
-.radio-progress-fill {
-  height: 100%;
-  width: 0%;
-  background: var(--bob-blue);
-  border-radius: 3px;
-  transition: width 0.3s linear;
-}
-
-.radio-list {
-  max-height: 160px;
-  overflow-y: auto;
-}
-
-.radio-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 10px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background 0.2s;
-  font-size: 0.82rem;
-}
-
-.radio-item:hover { background: var(--canvas-cream); }
-.radio-item.active { background: var(--bob-blue-pale); }
-
-.radio-item .num { color: var(--text-muted); font-size: 0.72rem; width: 16px; text-align: right; }
-.radio-item.active .num { color: var(--bob-blue); }
-.radio-item .name { flex: 1; font-weight: 500; color: var(--text-primary); }
-.radio-item.active .name { color: var(--bob-blue-deep); }
-.radio-item .dur { color: var(--text-muted); font-size: 0.72rem; }
-
-/* ---- SOUNDBOARD PANEL ---- */
-.sb-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-}
-
-.sb-pad {
-  position: relative;
-  aspect-ratio: 1;
-  border-radius: var(--radius-sm);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  cursor: pointer;
-  border: 2px solid var(--bevel-dark);
-  border-top-color: var(--bevel-light);
-  border-left-color: var(--bevel-light);
-  user-select: none;
-}
-
-.sb-pad.playing {
-  border-top-color: var(--bob-blue-deep);
-  border-left-color: var(--bob-blue-deep);
-  border-bottom-color: var(--bob-blue-light);
-  border-right-color: var(--bob-blue-light);
-  background: var(--bob-blue-pale) !important;
-}
-
-.sb-pad.brush { background: #F8F2EB; }
-.sb-pad.scraper { background: var(--bob-blue-pale); }
-.sb-pad.paint { background: var(--sap-green-light); }
-.sb-pad.prep { background: var(--cadmium-yellow-light); }
-
-.sb-pad .icon { display: flex; align-items: center; justify-content: center; }
-.sb-pad .label { font-size: 0.62rem; font-weight: 500; color: var(--text-secondary); text-align: center; line-height: 1.2; padding: 0 4px; }
-
-.sb-pad .wave-dots {
-  position: absolute;
-  bottom: 6px;
-  display: flex;
-  gap: 2px;
-  opacity: 0;
-}
-
-.sb-pad.playing .wave-dots { opacity: 1; }
-
-.wave-dots span {
-  width: 2px;
-  background: var(--bob-blue);
-  border-radius: 2px;
-  animation: wave 0.5s ease-in-out infinite alternate;
-}
-
-.wave-dots span:nth-child(1) { height: 4px; animation-delay: 0s; }
-.wave-dots span:nth-child(2) { height: 8px; animation-delay: 0.1s; }
-.wave-dots span:nth-child(3) { height: 5px; animation-delay: 0.2s; }
-.wave-dots span:nth-child(4) { height: 9px; animation-delay: 0.15s; }
-.wave-dots span:nth-child(5) { height: 4px; animation-delay: 0.05s; }
-
-@keyframes wave { to { height: 3px; } }
-
-.sb-controls {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-top: 14px;
-  padding-top: 14px;
-  border-top: 1px solid var(--border-light);
-}
-
-.sb-controls label {
-  font-size: 0.68rem;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.sb-slider {
-  -webkit-appearance: none;
-  appearance: none;
-  flex: 1;
-  height: 3px;
-  background: var(--border-med);
-  border-radius: 3px;
-  outline: none;
-}
-
-.sb-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 12px;
-  height: 12px;
-  background: var(--bob-blue);
-  border-radius: 50%;
-  cursor: pointer;
-}
-
-.sb-stop {
-  padding: 4px 12px;
-  background: #EDD8D8;
-  border: 2px solid var(--bevel-dark);
-  border-top-color: var(--bevel-light);
-  border-left-color: var(--bevel-light);
-  border-radius: var(--radius-sm);
-  font-family: var(--system-font);
-  font-size: 0.62rem;
-  font-weight: 500;
-  color: var(--alizarin-crimson);
-  cursor: pointer;
-}
-
-.sb-stop:hover { background: #E0C8C8; }
-.sb-stop:active { border-top-color: var(--bevel-dark); border-left-color: var(--bevel-dark); border-bottom-color: var(--bevel-light); border-right-color: var(--bevel-light); }
-
-/* ---- WALLPAPERS PANEL ---- */
-.wp-tabs {
-  display: flex;
-  gap: 6px;
-  margin-bottom: 14px;
-  flex-wrap: wrap;
-}
-
-.wp-tab {
-  padding: 3px 10px;
-  border-radius: var(--radius-sm);
-  background: var(--canvas-cream);
-  border: 2px solid var(--bevel-dark);
-  border-top-color: var(--bevel-light);
-  border-left-color: var(--bevel-light);
-  font-family: var(--system-font);
-  font-size: 0.62rem;
-  font-weight: 500;
-  color: var(--text-secondary);
-  cursor: pointer;
-}
-
-.wp-tab:hover { background: var(--canvas-warm); }
-.wp-tab:active { border-top-color: var(--bevel-dark); border-left-color: var(--bevel-dark); border-bottom-color: var(--bevel-light); border-right-color: var(--bevel-light); }
-.wp-tab.active { background: var(--bob-blue); color: white; border-color: var(--bob-blue-deep); }
-
-.wp-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-
-.wp-card {
-  position: relative;
-  border-radius: var(--radius-sm);
-  overflow: hidden;
-  aspect-ratio: 16/10;
-  cursor: pointer;
-  border: 2px solid var(--bevel-dark);
-  border-top-color: var(--bevel-light);
-  border-left-color: var(--bevel-light);
-}
-
-.wp-card:first-child { grid-column: span 2; }
-
-.wp-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(0deg, rgba(0,0,0,0.55) 0%, transparent 50%);
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  padding: 14px;
-  opacity: 0;
-  transition: opacity 0.25s;
-}
-
-.wp-card:hover .wp-overlay { opacity: 1; }
-
-.wp-overlay .name { font-family: 'Playfair Display', serif; font-size: 0.85rem; font-weight: 600; color: white; }
-.wp-overlay .season { font-size: 0.65rem; color: rgba(255,255,255,0.7); margin-bottom: 8px; }
-
-.wp-dl {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 5px 12px;
-  background: white;
-  color: var(--bob-blue-deep);
-  border: none;
-  border-radius: 14px;
-  font-size: 0.65rem;
-  font-weight: 600;
-  cursor: pointer;
-  width: fit-content;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.wp-dl svg { width: 10px; height: 10px; fill: currentColor; }
-
-/* ---- STORYBOOKS PANEL ---- */
-.sb-book-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.sb-book {
-  display: flex;
-  gap: 14px;
-  padding: 14px;
-  border-radius: var(--radius-sm);
-  background: var(--canvas-cream);
-  cursor: pointer;
-  border: 1px solid transparent;
-}
-
-.sb-book-cover {
-  width: 64px;
-  height: 80px;
-  border-radius: 6px;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 2px 2px 8px rgba(0,0,0,0.08);
-}
-
-.sb-book-info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.sb-book-title {
-  font-family: 'Playfair Display', serif;
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--van-dyke-brown);
-  margin-bottom: 3px;
-  line-height: 1.3;
-}
-
-.sb-book-desc {
-  font-size: 0.72rem;
-  color: var(--text-muted);
-  line-height: 1.4;
-}
-
-.sb-book-age {
-  margin-top: 4px;
-  font-size: 0.6rem;
-  font-weight: 500;
-  color: var(--bob-blue);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-/* ---- MERCH PANEL ---- */
-.merch-scroll {
-  display: flex;
-  gap: 16px;
-  overflow-x: auto;
-  padding-bottom: 8px;
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
-}
-
-.merch-scroll::-webkit-scrollbar { height: 4px; }
-.merch-scroll::-webkit-scrollbar-track { background: transparent; }
-.merch-scroll::-webkit-scrollbar-thumb { background: var(--border-med); border-radius: 4px; }
-
-.merch-item {
-  flex: 0 0 180px;
-  scroll-snap-align: start;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border-light);
-  overflow: hidden;
-  cursor: pointer;
-  background: var(--titanium-white);
-}
-
-.merch-img {
-  aspect-ratio: 1;
-  background: var(--canvas-cream);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-}
-
-.merch-badge {
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  padding: 2px 8px;
-  border-radius: 10px;
-  font-size: 0.55rem;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-}
-
-.merch-badge.bestseller { background: var(--bob-blue); color: white; }
-.merch-badge.new { background: var(--sap-green); color: white; }
-.merch-badge.limited { background: var(--alizarin-crimson); color: white; }
-
-.merch-meta {
-  padding: 12px;
-}
-
-.merch-cat {
-  font-size: 0.6rem;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  color: var(--bob-blue);
-  margin-bottom: 3px;
-}
-
-.merch-name {
-  font-family: 'Playfair Display', serif;
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--van-dyke-brown);
-  line-height: 1.3;
-  margin-bottom: 4px;
-}
-
-.merch-price {
-  font-size: 0.88rem;
-  font-weight: 600;
-  color: var(--dark-sienna);
-  margin-bottom: 8px;
-}
-
-.merch-btn {
-  width: 100%;
-  padding: 7px;
-  background: transparent;
-  border: 1px solid var(--border-med);
-  border-radius: 20px;
-  font-size: 0.68rem;
-  font-weight: 500;
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: all 0.2s;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.merch-btn:hover { background: var(--bob-blue); color: white; border-color: var(--bob-blue); }
-
-/* ---- QUOTE PANEL ---- */
-.panel-quote {
-  background: var(--bob-blue-pale);
-  border: none;
-  text-align: center;
-  padding: 48px 40px;
-  position: relative;
-  overflow: hidden;
-}
-
-.panel-quote::before {
-  content: '\201C';
-  position: absolute;
-  top: -10px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-family: 'Playfair Display', serif;
-  font-size: 12rem;
-  color: rgba(106,159,202,0.06);
-  line-height: 1;
-  pointer-events: none;
-}
-
-.quote-text {
-  font-family: 'Playfair Display', serif;
-  font-size: clamp(1.15rem, 2vw, 1.6rem);
-  font-style: italic;
-  line-height: 1.7;
-  max-width: 600px;
-  margin: 0 auto 16px;
-  color: var(--van-dyke-brown);
-  position: relative;
-}
-
-.quote-attr {
-  font-family: 'Caveat', cursive;
-  font-size: 1.2rem;
-  color: var(--bob-blue-deep);
-}
-
-/* ---- VIDEO MODAL ---- */
-.video-modal {
-  position: fixed;
-  inset: 0;
-  z-index: 10000;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  background: rgba(44,33,24,0.8);
-  backdrop-filter: blur(16px);
-}
-
-.video-modal.open { display: flex; }
-
-.video-modal-close {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.15);
-  border: none;
-  color: white;
-  font-size: 1.3rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.2s;
-}
-
-.video-modal-close:hover { background: rgba(255,255,255,0.25); }
-
-.video-modal-body {
-  width: 90%;
-  max-width: 800px;
-  aspect-ratio: 16/9;
-  background: white;
-  border-radius: var(--radius);
-  overflow: hidden;
-}
-
-/* ---- RESPONSIVE ---- */
-@media (max-width: 1100px) {
-  .dashboard {
-    grid-template-columns: 1fr 1fr;
-  }
-  .panel-episodes   { grid-column: 1 / 3; grid-row: 1; }
-  .panel-radio      { grid-column: 1; grid-row: 2; }
-  .panel-soundboard { grid-column: 2; grid-row: 2; }
-  .panel-wallpapers { grid-column: 1; grid-row: 3; }
-  .panel-storybooks { grid-column: 2; grid-row: 3; }
-  .panel-merch      { grid-column: 1 / 3; grid-row: 4; }
-  .panel-quote      { grid-column: 1 / 3; grid-row: 5; }
-}
-
-@media (max-width: 700px) {
-  .dashboard {
-    grid-template-columns: 1fr;
-  }
-  .panel-episodes, .panel-radio, .panel-soundboard,
-  .panel-wallpapers, .panel-storybooks, .panel-merch, .panel-quote {
-    grid-column: 1;
-    grid-row: auto;
-  }
-  .hero-greeting { padding: 24px 20px 16px; }
-  .dashboard { padding: 0 16px 24px; gap: 14px; }
-  .topbar { padding: 0 16px; }
-  .ep-grid { grid-template-columns: 1fr 1fr; }
-  .sb-grid { grid-template-columns: repeat(3, 1fr); }
-}
-
-/* ---- SPRING SCROLL REVEALS ---- */
-/* CSS-only entrance animations — content is always visible, animation is decorative */
-@keyframes panelReveal {
-  from {
-    opacity: 0;
-    filter: blur(6px);
-    transform: perspective(1200px) translateY(40px);
-  }
-  to {
-    opacity: 1;
-    filter: blur(0);
-    transform: perspective(1200px) translateY(0);
-  }
-}
-
-.reveal {
-  animation: panelReveal 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-
-.reveal[data-delay="0"] { animation-delay: 0s; }
-.reveal[data-delay="1"] { animation-delay: 0.06s; }
-.reveal[data-delay="2"] { animation-delay: 0.12s; }
-.reveal[data-delay="3"] { animation-delay: 0.18s; }
-.reveal[data-delay="4"] { animation-delay: 0.24s; }
-.reveal[data-delay="5"] { animation-delay: 0.30s; }
-.reveal[data-delay="6"] { animation-delay: 0.36s; }
-.reveal[data-delay="7"] { animation-delay: 0.42s; }
-
-/* ---- TEXT SPLIT REVEAL ---- */
-.split-word {
-  display: inline-block;
-  overflow: hidden;
-}
-
-.split-word > span {
-  display: inline-block;
-  transform: translateY(110%);
-  opacity: 0;
-  transition:
-    transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1),
-    opacity 0.5s ease;
-}
-
-.split-word.in > span {
-  transform: translateY(0);
-  opacity: 1;
-}
-
-/* ---- AMBIENT FLOATING ANIMATIONS ---- */
-@keyframes floatY {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-6px); }
-}
-
-@keyframes floatScale {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.04); }
-}
-
-@keyframes gentleRotate {
-  0%, 100% { transform: rotate(0deg); }
-  50% { transform: rotate(3deg); }
-}
-
-@keyframes subtlePulse {
-  0%, 100% { opacity: 0.6; }
-  50% { opacity: 1; }
-}
-
-@keyframes hueShift {
-  0% { filter: hue-rotate(0deg); }
-  100% { filter: hue-rotate(15deg); }
-}
-
-/* Panel icons float gently */
-.panel-icon {
-  animation: floatY 4s ease-in-out infinite;
-  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-/* Icon spins on panel hover */
-.panel:hover .panel-icon {
-  transform: rotate(12deg) scale(1.1);
-  animation-play-state: paused;
-}
-
-/* Vinyl record has ambient glow pulse */
-.vinyl-disc {
-  transition: box-shadow 0.6s ease;
-}
-
-.panel-radio:hover .vinyl-disc:not(.spinning) {
-  box-shadow: 0 4px 20px rgba(106,159,202,0.2), 0 0 40px rgba(106,159,202,0.08);
-}
-
-/* Quote panel has slow hue shift */
-.panel-quote {
-  animation: hueShift 20s linear infinite alternate;
-}
-
-/* ---- DESATURATED-TO-VIVID HOVERS ---- */
-/* Episode thumbnails start desaturated, spring to vivid on hover */
-.ep-thumb {
-  filter: saturate(0.4) brightness(0.95);
-  transition:
-    filter 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
-    transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.ep-card:hover .ep-thumb {
-  filter: saturate(1.3) brightness(1.05);
-  transform: scale(1.03);
-}
-
-/* Wallpaper cards also desaturate */
-.wp-card {
-  filter: saturate(0.5);
-  transition:
-    filter 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
-    transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
-    box-shadow 0.4s ease;
-}
-
-.wp-card:hover {
-  filter: saturate(1.4);
-  transform: translateY(-3px) scale(1.01);
-  box-shadow: var(--shadow-lg);
-}
-
-/* ---- MULTI-LAYERED PANEL HOVERS ---- */
-/* Panels get richer: border, shadow, bg shift, subtle lift */
-.panel {
-  transition:
-    box-shadow 0.5s cubic-bezier(0.16, 1, 0.3, 1),
-    border-color 0.5s ease,
-    transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
-    background 0.3s ease;
-}
-
-.panel:hover {
-  box-shadow:
-    0 0 0 1px rgba(106,159,202,0.08),
-    0 4px 8px rgba(59,47,47,0.04),
-    0 12px 40px rgba(59,47,47,0.06);
-  border-color: rgba(106,159,202,0.12);
-  transform: translateY(-2px);
-}
-
-/* ---- RICH CARD HOVERS ---- */
-.ep-card {
-  transition:
-    transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
-    box-shadow 0.4s ease,
-    border-color 0.4s ease;
-}
-
-.ep-card:hover {
-  transform: translateY(-4px);
-  box-shadow:
-    0 0 0 1px rgba(106,159,202,0.1),
-    0 8px 24px rgba(59,47,47,0.08);
-  border-color: var(--bob-blue-light);
-}
-
-/* Play button scales up with spring on hover */
-.ep-play-icon {
-  transform: scale(0.8);
-  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.ep-card:hover .ep-play-icon {
-  transform: scale(1);
-}
-
-.ep-thumb-overlay {
-  transition: opacity 0.35s ease;
-}
-
-/* ---- SOUNDBOARD PAD SPRING INTERACTIONS ---- */
-.sb-pad {
-  transition:
-    transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
-    box-shadow 0.3s ease,
-    border-color 0.3s ease;
-}
-
-.sb-pad:hover {
-  transform: translateY(-3px) scale(1.03);
-  box-shadow:
-    0 4px 12px rgba(59,47,47,0.06),
-    0 0 0 1px rgba(106,159,202,0.1);
-}
-
-.sb-pad:active {
-  transform: scale(0.93);
-  transition-duration: 0.1s;
-}
-
-.sb-pad .icon {
-  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.sb-pad:hover .icon {
-  transform: scale(1.15) rotate(-5deg);
-}
-
-.sb-pad.playing .icon {
-  animation: floatScale 1.5s ease-in-out infinite;
-}
-
-/* ---- BOOK HOVER WITH TILT ---- */
-.sb-book {
-  transition:
-    transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
-    border-color 0.3s ease,
-    box-shadow 0.3s ease;
-}
-
-.sb-book:hover {
-  transform: translateX(4px);
-  border-color: var(--bob-blue-light);
-  box-shadow: 0 4px 16px rgba(59,47,47,0.06);
-}
-
-.sb-book-cover {
-  transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.sb-book:hover .sb-book-cover {
-  transform: rotate(-3deg) scale(1.05);
-}
-
-/* ---- MERCH ITEM RICH HOVER ---- */
-.merch-item {
-  transition:
-    transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
-    box-shadow 0.4s ease,
-    border-color 0.3s ease;
-}
-
-.merch-item:hover {
-  transform: translateY(-4px);
-  box-shadow:
-    0 0 0 1px rgba(106,159,202,0.08),
-    0 8px 24px rgba(59,47,47,0.08);
-  border-color: var(--bob-blue-light);
-}
-
-.merch-img {
-  transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.merch-item:hover .merch-img {
-  transform: scale(1.02);
-}
-
-.merch-item:hover .merch-img {
-  animation: floatY 2s ease-in-out infinite;
-}
-
-/* ---- BUTTON PRESS FEEDBACK ---- */
-.ep-pill, .wp-tab, .ep-load-more, .merch-btn, .sb-stop, .radio-ctrl, .panel-action, .wp-dl {
-  transition:
-    all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.ep-pill:active, .wp-tab:active, .ep-load-more:active,
-.merch-btn:active, .sb-stop:active, .radio-ctrl:active,
-.panel-action:active, .wp-dl:active {
-  transform: scale(0.95);
-  transition-duration: 0.1s;
-}
-
-/* Radio play button pulse when playing */
-.radio-ctrl.play.is-playing {
-  animation: subtlePulse 2s ease-in-out infinite;
-  box-shadow: 0 0 20px rgba(106,159,202,0.3);
-}
-
-/* ---- TOPBAR MICRO-INTERACTIONS ---- */
-.topbar-logo img {
-  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.topbar-logo:hover img {
-  transform: scale(1.05);
-}
-
-.topbar-quote {
-  transition: opacity 0.6s ease;
-  animation: subtlePulse 8s ease-in-out infinite;
-}
-
-/* ---- VIDEO MODAL SPRING OPEN ---- */
-.video-modal-body {
-  transform: perspective(1200px) scale(0.9) translateY(30px);
-  opacity: 0;
-  transition:
-    transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
-    opacity 0.4s ease;
-}
-
-.video-modal.open .video-modal-body {
-  transform: perspective(1200px) scale(1) translateY(0);
-  opacity: 1;
-}
-
-/* ---- SELECTION COLOR ---- */
-::selection {
-  background: rgba(106,159,202,0.25);
-  color: var(--van-dyke-brown);
-}
-
-/* ---- TEXT SHADOW (subtle emboss) ---- */
-.panel-title, .hero-greeting h1, .quote-text {
-  text-shadow: 0px 1px 0px rgba(255,255,255,0.7);
-}
-
-/* ---- SMOOTH LINK UNDERLINE ANIMATION ---- */
-.panel-action {
-  position: relative;
-}
-
-.panel-action::after {
-  content: '';
-  position: absolute;
-  bottom: -2px;
-  left: 0;
-  width: 0;
-  height: 1px;
-  background: var(--bob-blue);
-  transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.panel-action:hover::after {
-  width: 100%;
-}
-
-/* ---- STATUS BAR (OS Footer) ---- */
-.status-bar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 100;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 20px;
-  background: linear-gradient(180deg, rgba(239,232,216,0.95) 0%, rgba(247,241,230,0.97) 100%);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-top: 1px solid var(--border-med);
-  font-family: var(--system-font);
-  font-size: 0.6rem;
-  color: var(--text-muted);
-}
-
-.status-bar-left {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.status-bar-center {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  transition: opacity 0.4s;
-}
-
-.status-bar-right {
-  font-variant-numeric: tabular-nums;
-}
-
-/* Adjust dashboard bottom padding to account for status bar */
-.dashboard {
-  padding-bottom: 52px !important;
-}
-
-/* ---- CURSOR TRAIL GLOW ---- */
-.cursor-glow {
-  position: fixed;
-  width: 200px;
-  height: 200px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(232,196,106,0.04) 0%, transparent 70%);
-  pointer-events: none;
-  z-index: 9997;
-  transform: translate(-50%, -50%);
-  transition: left 0.3s ease, top 0.3s ease;
-}
-</style>
-</head>
-<body>
-<div class="cursor-glow" id="cursorGlow"></div>
-
-<!-- ===== TOP BAR (OS Menu Bar) ===== -->
-<div class="topbar">
-  <div class="topbar-logo">
-    <img src="bob-ross-logo.svg" alt="Bob Ross" height="22">
-  </div>
-  <div class="topbar-menu">
-    <span class="topbar-menu-item" onclick="document.querySelector('.panel-episodes').scrollIntoView({behavior:'smooth'})">Episodes</span>
-    <span class="topbar-menu-item" onclick="document.querySelector('.panel-radio').scrollIntoView({behavior:'smooth'})">Radio</span>
-    <span class="topbar-menu-item" onclick="document.querySelector('.panel-soundboard').scrollIntoView({behavior:'smooth'})">Sounds</span>
-    <span class="topbar-menu-item" onclick="document.querySelector('.panel-wallpapers').scrollIntoView({behavior:'smooth'})">Wallpapers</span>
-    <span class="topbar-menu-item" onclick="document.querySelector('.panel-merch').scrollIntoView({behavior:'smooth'})">Merch</span>
-  </div>
-  <div class="topbar-time"><span class="status-dot"></span> <span id="topbarTime"></span></div>
-</div>
-
-<!-- ===== GREETING (Boot Sequence) ===== -->
-<div class="hero-greeting reveal" data-delay="0" id="heroGreeting">
-  <h1>Welcome, friend. <em>Let's paint.</em></h1>
-  <p class="hero-system-msg">system online -- all 403 episodes loaded -- brushes ready -- happy little accidents enabled</p>
-  <p>"Talent is a pursued interest. Anything that you're willing to practice, you can do."</p>
-</div>
-
-<!-- ===== DASHBOARD ===== -->
-<div class="dashboard">
-
-  <!-- EPISODES -->
-  <div class="panel panel-episodes reveal" data-delay="1">
-    <div class="panel-header">
-      <div class="panel-header-left">
-
-        <div class="panel-icon blue"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5,3 19,12 5,21"/></svg></div>
-        <div>
-          <div class="panel-title">The Joy of Painting</div>
-          <div class="panel-subtitle">403 Episodes &bull; 31 Seasons</div>
-        </div>
-      </div>
-      <button class="panel-action" id="epViewAll">View All</button>
-    </div>
-    <div class="panel-body">
-      <div class="ep-season-pills" id="seasonPills"></div>
-      <div class="ep-grid" id="epGrid"></div>
-      <button class="ep-load-more" id="epLoadMore" onclick="loadMore()">Show more episodes</button>
-    </div>
-  </div>
-
-  <!-- RADIO -->
-  <div class="panel panel-radio reveal" data-delay="2">
-    <div class="panel-header">
-      <div class="panel-header-left">
-
-        <div class="panel-icon green"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>
-        <div>
-          <div class="panel-title">Bob Ross Radio</div>
-          <div class="panel-subtitle">Lounge &bull; Jazz</div>
-        </div>
-      </div>
-    </div>
-    <div class="panel-body">
-      <div class="radio-vinyl-wrap">
-        <div class="radio-vinyl">
-          <div class="vinyl-disc" id="vinylDisc">
-            <div class="vinyl-center"><span>JOP</span></div>
+      :root {
+        /* Studio */
+        --studio-black: #0e0d0c;
+        --studio-deep: #151311;
+        --studio-panel: #1b1916;
+        --studio-raised: #24211d;
+        --studio-line: rgba(255, 244, 228, 0.09);
+        --studio-line-strong: rgba(255, 244, 228, 0.16);
+
+        /* Text, named for the paint */
+        --titanium-white: #f4eee3;
+        --text-secondary: #b9b0a2;
+        --text-muted: #8c8477;
+
+        /* The palette Bob set out every episode */
+        --phthalo-blue: #8db7dd;
+        --phthalo-deep: #3e6e99;
+        --sap-green: #8db57a;
+        --cadmium-yellow: #f0bc48;
+        --yellow-ochre: #c99a4a;
+        --alizarin: #d2584f;
+        --van-dyke: #4a3a2e;
+        --bob-red: #d2242a;
+
+        /* Type scale: few named sizes only */
+        --fs-hero: clamp(2.625rem, 5.2vw, 4.5rem);
+        --fs-h2: clamp(1.875rem, 3.6vw, 2.75rem);
+        --fs-h3: 1.3125rem;
+        --fs-body: 1rem;
+        --fs-small: 0.875rem;
+        --fs-label: 0.75rem;
+
+        --radius-lg: 24px;
+        --radius-md: 16px;
+        --radius-sm: 10px;
+        --gutter: clamp(16px, 4vw, 48px);
+        --max: 1240px;
+
+        /* Motion: smooth, nothing abrupt */
+        --ease-out: cubic-bezier(0.33, 1, 0.68, 1);
+        --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      html {
+        scroll-behavior: smooth;
+        scroll-padding-top: 96px;
+      }
+
+      body {
+        background: var(--studio-black);
+        color: var(--titanium-white);
+        font-family: "Inter", system-ui, sans-serif;
+        font-size: var(--fs-body);
+        line-height: 1.55;
+        -webkit-font-smoothing: antialiased;
+        overflow-x: hidden;
+      }
+
+      img {
+        max-width: 100%;
+        height: auto;
+        display: block;
+      }
+      button {
+        font: inherit;
+        color: inherit;
+        cursor: pointer;
+      }
+      a {
+        color: inherit;
+      }
+
+      h1,
+      h2,
+      h3 {
+        font-family: "Playfair Display", Georgia, serif;
+        font-weight: 500;
+        letter-spacing: -0.01em;
+        line-height: 1.12;
+        text-wrap: balance;
+      }
+      p {
+        text-wrap: pretty;
+      }
+
+      :focus-visible {
+        outline: 2px solid var(--cadmium-yellow);
+        outline-offset: 3px;
+        border-radius: 6px;
+      }
+
+      .wrap {
+        width: 100%;
+        max-width: var(--max);
+        margin: 0 auto;
+        padding: 0 var(--gutter);
+      }
+
+      /* ---------- Buttons: text only ---------- */
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        min-height: 48px;
+        padding: 0 24px;
+        border-radius: 999px;
+        border: 1px solid transparent;
+        font-size: var(--fs-small);
+        font-weight: 600;
+        letter-spacing: 0.01em;
+        text-decoration: none;
+        white-space: nowrap;
+        transition:
+          background-color 0.4s var(--ease-out),
+          border-color 0.4s var(--ease-out),
+          transform 0.4s var(--ease-out),
+          color 0.4s var(--ease-out);
+      }
+      .btn:active {
+        transform: scale(0.97);
+      }
+      .btn-primary {
+        background: var(--titanium-white);
+        color: var(--studio-black);
+      }
+      .btn-primary:hover {
+        background: #fff;
+      }
+      .btn-ghost {
+        border-color: var(--studio-line-strong);
+        background: rgba(255, 244, 228, 0.03);
+      }
+      .btn-ghost:hover {
+        border-color: rgba(255, 244, 228, 0.32);
+        background: rgba(255, 244, 228, 0.07);
+      }
+
+      .chip {
+        min-height: 36px;
+        padding: 0 14px;
+        border-radius: 999px;
+        border: 1px solid var(--studio-line-strong);
+        background: transparent;
+        color: var(--text-secondary);
+        font-size: var(--fs-small);
+        font-weight: 500;
+        white-space: nowrap;
+        flex: none;
+        transition:
+          background-color 0.35s var(--ease-out),
+          color 0.35s var(--ease-out),
+          border-color 0.35s var(--ease-out);
+      }
+      .chip:hover {
+        color: var(--titanium-white);
+        border-color: rgba(255, 244, 228, 0.3);
+      }
+      .chip[aria-pressed="true"] {
+        background: rgba(240, 188, 72, 0.14);
+        border-color: rgba(240, 188, 72, 0.55);
+        color: var(--cadmium-yellow);
+      }
+
+      /* ---------- Nav ---------- */
+      .nav {
+        position: fixed;
+        top: 16px;
+        left: 50%;
+        z-index: 50;
+        transform: translateX(-50%);
+        width: min(calc(100% - 32px), 720px);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 8px 8px 8px 20px;
+        border-radius: 999px;
+        background: rgba(21, 19, 17, 0.72);
+        border: 1px solid var(--studio-line);
+        backdrop-filter: blur(18px) saturate(1.3);
+        -webkit-backdrop-filter: blur(18px) saturate(1.3);
+      }
+      .nav-logo {
+        display: block;
+        flex: none;
+      }
+      .nav-logo img {
+        width: 78px;
+        height: auto;
+      }
+      .nav-links {
+        display: flex;
+        gap: 2px;
+        list-style: none;
+      }
+      .nav-links a {
+        display: block;
+        padding: 10px 14px;
+        border-radius: 999px;
+        color: var(--text-secondary);
+        text-decoration: none;
+        font-size: var(--fs-small);
+        font-weight: 500;
+        transition:
+          color 0.3s var(--ease-out),
+          background-color 0.3s var(--ease-out);
+      }
+      .nav-links a:hover {
+        color: var(--titanium-white);
+        background: rgba(255, 244, 228, 0.06);
+      }
+
+      /* ---------- Hero: the easel under the studio light ---------- */
+      .hero {
+        position: relative;
+        padding: 148px 0 104px;
+        overflow: hidden;
+      }
+      .hero::before {
+        /* the studio key light */
+        content: "";
+        position: absolute;
+        z-index: 0;
+        top: -18%;
+        right: -6%;
+        width: 78vw;
+        height: 120%;
+        background: radial-gradient(
+          closest-side,
+          rgba(255, 228, 186, 0.13),
+          rgba(255, 228, 186, 0.04) 55%,
+          transparent
+        );
+        pointer-events: none;
+      }
+      .hero-grid {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        grid-template-columns: minmax(0, 1.12fr) minmax(0, 1fr);
+        gap: clamp(32px, 5vw, 72px);
+        align-items: center;
+      }
+      .hero h1 {
+        font-size: var(--fs-hero);
+        font-weight: 500;
+      }
+      .hero h1 em {
+        font-style: italic;
+        color: var(--phthalo-blue);
+      }
+      .hero-lede {
+        margin-top: 24px;
+        max-width: 30em;
+        font-size: 1.125rem;
+        line-height: 1.6;
+        color: var(--text-secondary);
+      }
+      .hero-actions {
+        margin-top: 36px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      .easel {
+        position: relative;
+      }
+      .easel-canvas {
+        position: relative;
+        display: block;
+        width: 100%;
+        border: 0;
+        padding: 0;
+        background: var(--studio-deep);
+        border-radius: 6px;
+        overflow: hidden;
+        aspect-ratio: 16 / 9;
+        box-shadow:
+          0 0 0 10px #e9e2d3,
+          0 0 0 11px rgba(0, 0, 0, 0.25),
+          0 40px 80px -20px rgba(0, 0, 0, 0.8),
+          0 0 120px rgba(255, 228, 186, 0.08);
+        transform: rotate(-1.2deg);
+        transition: transform 0.9s var(--ease-expo);
+      }
+      .easel-canvas:hover {
+        transform: rotate(0deg) scale(1.01);
+      }
+      .easel-canvas img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .easel-canvas .play-badge {
+        opacity: 0;
+      }
+      .easel-canvas:hover .play-badge,
+      .easel-canvas:focus-visible .play-badge {
+        opacity: 1;
+      }
+      .easel-caption {
+        margin-top: 32px;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 4px 16px;
+        font-size: var(--fs-small);
+        color: var(--text-muted);
+      }
+      .easel-caption strong {
+        color: var(--titanium-white);
+        font-family: "Playfair Display", serif;
+        font-style: italic;
+        font-weight: 500;
+        font-size: 1.0625rem;
+      }
+
+      .play-badge {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        padding: 12px 22px;
+        border-radius: 999px;
+        background: rgba(14, 13, 12, 0.72);
+        border: 1px solid rgba(255, 244, 228, 0.2);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        font-size: var(--fs-small);
+        font-weight: 600;
+        transition: opacity 0.45s var(--ease-out);
+      }
+
+      /* ---------- Sections ---------- */
+      .section {
+        padding: clamp(72px, 10vw, 128px) 0;
+        border-top: 1px solid var(--studio-line);
+      }
+      .section-head {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 16px 48px;
+        align-items: end;
+        margin-bottom: 40px;
+      }
+      .section-head h2 {
+        font-size: var(--fs-h2);
+      }
+      .section-head p {
+        color: var(--text-secondary);
+        max-width: 34em;
+      }
+
+      /* ---------- Episodes ---------- */
+      .season-bar {
+        display: flex;
+        gap: 8px;
+        overflow-x: auto;
+        padding: 2px 2px 14px;
+        margin: 0 0 24px;
+        scrollbar-width: thin;
+        scrollbar-color: var(--studio-raised) transparent;
+        mask-image: linear-gradient(90deg, #000 92%, transparent);
+        -webkit-mask-image: linear-gradient(90deg, #000 92%, transparent);
+      }
+      .ep-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 32px 20px;
+      }
+      .ep-card {
+        display: block;
+        width: 100%;
+        text-align: left;
+        background: none;
+        border: 0;
+        padding: 0;
+      }
+      .ep-thumb {
+        position: relative;
+        overflow: hidden;
+        aspect-ratio: 16 / 9;
+        border-radius: var(--radius-sm);
+        background: var(--studio-panel);
+        border: 1px solid var(--studio-line);
+      }
+      .ep-thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition:
+          transform 1.1s var(--ease-expo),
+          filter 0.6s var(--ease-out);
+        filter: saturate(0.92);
+      }
+      .ep-card:hover .ep-thumb img,
+      .ep-card:focus-visible .ep-thumb img {
+        transform: scale(1.045);
+        filter: saturate(1.08);
+      }
+      .ep-thumb .play-badge {
+        opacity: 0;
+        padding: 9px 16px;
+        font-size: var(--fs-label);
+      }
+      .ep-card:hover .play-badge,
+      .ep-card:focus-visible .play-badge {
+        opacity: 1;
+      }
+      .ep-meta {
+        padding: 14px 2px 0;
+      }
+      .ep-label {
+        font-size: var(--fs-label);
+        color: var(--text-muted);
+        font-weight: 500;
+        letter-spacing: 0.02em;
+      }
+      .ep-title {
+        margin-top: 2px;
+        font-family: "Playfair Display", serif;
+        font-size: 1.125rem;
+        font-weight: 500;
+        line-height: 1.3;
+        text-wrap: balance;
+      }
+      .ep-more {
+        margin-top: 48px;
+        display: flex;
+        justify-content: center;
+      }
+
+      /* ---------- Radio ---------- */
+      .radio {
+        display: grid;
+        grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+        gap: clamp(24px, 4vw, 48px);
+        padding: clamp(16px, 2.4vw, 28px);
+        border-radius: var(--radius-lg);
+        background: linear-gradient(
+          160deg,
+          var(--studio-panel),
+          var(--studio-deep)
+        );
+        border: 1px solid var(--studio-line);
+      }
+      .radio-screen {
+        position: relative;
+        overflow: hidden;
+        align-self: start;
+        aspect-ratio: 16 / 9;
+        border-radius: var(--radius-md);
+        background: #000 center / cover no-repeat;
+        border: 1px solid var(--studio-line);
+      }
+      .radio-screen iframe,
+      .radio-screen > div {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        border: 0;
+      }
+      .radio-fallback {
+        display: none !important;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+        padding: 24px;
+        text-align: center;
+        color: var(--text-secondary);
+        background: var(--studio-deep);
+      }
+      .radio-fallback.show {
+        display: flex !important;
+      }
+      .radio-main {
+        min-width: 0;
+      }
+      .radio-now {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-top: 22px;
+      }
+      .radio-now-text {
+        min-width: 0;
+      }
+      .side-label {
+        font-family: "Inter", sans-serif;
+        font-size: var(--fs-label);
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        margin-bottom: 12px;
+      }
+      .radio-side {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        padding: 4px 4px 4px 0;
+      }
+      .on-air {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        align-self: flex-start;
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-size: var(--fs-label);
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        border: 1px solid var(--studio-line-strong);
+        transition:
+          color 0.4s var(--ease-out),
+          border-color 0.4s var(--ease-out),
+          background-color 0.4s var(--ease-out);
+      }
+      .on-air i {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: currentColor;
+      }
+      .on-air.live {
+        color: #f2a29c;
+        border-color: rgba(210, 88, 79, 0.55);
+        background: rgba(210, 88, 79, 0.12);
+      }
+      .on-air.live i {
+        animation: onair 2.4s var(--ease-out) infinite;
+      }
+      @keyframes onair {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.35;
+        }
+      }
+      .now-title {
+        margin-top: 14px;
+        font-size: var(--fs-h3);
+        line-height: 1.25;
+      }
+      .now-sub {
+        margin-top: 4px;
+        font-size: var(--fs-small);
+        color: var(--text-muted);
+      }
+      .radio-progress {
+        margin-top: 20px;
+        height: 4px;
+        border-radius: 4px;
+        background: var(--studio-raised);
+        overflow: hidden;
+      }
+      .radio-progress span {
+        display: block;
+        height: 100%;
+        width: 0;
+        background: linear-gradient(
+          90deg,
+          var(--phthalo-deep),
+          var(--phthalo-blue)
+        );
+        border-radius: inherit;
+        transition: width 0.5s linear;
+      }
+      .radio-times {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 6px;
+        font-size: var(--fs-label);
+        color: var(--text-muted);
+      }
+      .radio-controls {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex: none;
+      }
+      .icon-btn {
+        display: grid;
+        place-items: center;
+        flex: none;
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        border: 1px solid var(--studio-line-strong);
+        background: transparent;
+        transition:
+          background-color 0.35s var(--ease-out),
+          transform 0.35s var(--ease-out),
+          border-color 0.35s var(--ease-out);
+      }
+      .icon-btn:hover {
+        background: rgba(255, 244, 228, 0.07);
+        border-color: rgba(255, 244, 228, 0.3);
+      }
+      .icon-btn:active {
+        transform: scale(0.94);
+      }
+      .icon-btn svg {
+        width: 18px;
+        height: 18px;
+        fill: currentColor;
+        flex: none;
+      }
+      .icon-btn.play {
+        width: 60px;
+        height: 60px;
+        background: var(--titanium-white);
+        color: var(--studio-black);
+        border-color: transparent;
+      }
+      .icon-btn.play:hover {
+        background: #fff;
+      }
+      .icon-btn.play svg {
+        width: 22px;
+        height: 22px;
+      }
+      .stations {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .up-next {
+        margin-top: 24px;
+        border-top: 1px solid var(--studio-line);
+        padding-top: 16px;
+      }
+      .up-next h3 {
+        font-family: "Inter", sans-serif;
+        font-size: var(--fs-label);
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        margin-bottom: 12px;
+      }
+      .up-next ol {
+        list-style: none;
+      }
+      .up-next button {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 8px;
+        margin: 0 -8px;
+        width: calc(100% + 16px);
+        border: 0;
+        border-radius: var(--radius-sm);
+        background: none;
+        text-align: left;
+        transition: background-color 0.3s var(--ease-out);
+      }
+      .up-next button:hover {
+        background: rgba(255, 244, 228, 0.05);
+      }
+      .up-next img {
+        width: 80px;
+        height: 45px;
+        object-fit: cover;
+        border-radius: 6px;
+        flex: none;
+      }
+      .up-next .txt {
+        min-width: 0;
+      }
+      .up-next .t {
+        display: block;
+        font-size: var(--fs-small);
+        font-weight: 500;
+        line-height: 1.35;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .up-next .s {
+        display: block;
+        font-size: var(--fs-label);
+        color: var(--text-muted);
+      }
+      .fineprint {
+        margin-top: 16px;
+        font-size: var(--fs-label);
+        color: var(--text-muted);
+        line-height: 1.5;
+      }
+      .fineprint a {
+        color: var(--text-secondary);
+        text-underline-offset: 3px;
+      }
+
+      /* ---------- Soundboard ---------- */
+      .sb-groups {
+        display: grid;
+        gap: 40px;
+      }
+      .sb-group h3 {
+        font-size: var(--fs-h3);
+        margin-bottom: 4px;
+      }
+      .sb-group > p {
+        color: var(--text-secondary);
+        font-size: var(--fs-small);
+        margin-bottom: 20px;
+      }
+      .sb-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+      }
+      .sb-pad {
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 18px;
+        min-height: 132px;
+        padding: 18px;
+        border-radius: var(--radius-md);
+        border: 1px solid var(--studio-line);
+        background: var(--studio-panel);
+        text-align: left;
+        transition:
+          border-color 0.45s var(--ease-out),
+          background-color 0.45s var(--ease-out),
+          transform 0.45s var(--ease-out);
+      }
+      .sb-pad:hover {
+        border-color: var(--studio-line-strong);
+        background: var(--studio-raised);
+      }
+      .sb-pad:active {
+        transform: scale(0.98);
+      }
+      .sb-pad .swatch {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        flex: none;
+        background: var(--paint);
+        box-shadow:
+          inset 0 -6px 10px rgba(0, 0, 0, 0.25),
+          inset 0 4px 6px rgba(255, 255, 255, 0.18);
+        transition: transform 0.6s var(--ease-expo);
+      }
+      .sb-pad .name {
+        font-weight: 600;
+        font-size: var(--fs-body);
+        line-height: 1.3;
+      }
+      .sb-pad .hint {
+        display: block;
+        font-size: var(--fs-label);
+        color: var(--text-muted);
+        font-weight: 400;
+        margin-top: 2px;
+      }
+      .sb-pad .bars {
+        position: absolute;
+        right: 18px;
+        top: 22px;
+        display: flex;
+        gap: 3px;
+        align-items: flex-end;
+        height: 18px;
+        opacity: 0;
+        transition: opacity 0.4s var(--ease-out);
+      }
+      .sb-pad .bars i {
+        width: 3px;
+        height: 30%;
+        border-radius: 2px;
+        background: var(--paint);
+      }
+      .sb-pad[aria-pressed="true"] {
+        border-color: color-mix(in srgb, var(--paint) 60%, transparent);
+        background: color-mix(in srgb, var(--paint) 12%, var(--studio-panel));
+      }
+      .sb-pad[aria-pressed="true"] .swatch {
+        transform: scale(1.12);
+      }
+      .sb-pad[aria-pressed="true"] .bars {
+        opacity: 1;
+      }
+      .sb-pad[aria-pressed="true"] .bars i {
+        animation: bar 1.1s var(--ease-out) infinite alternate;
+      }
+      .sb-pad .bars i:nth-child(2) {
+        animation-delay: -0.3s !important;
+      }
+      .sb-pad .bars i:nth-child(3) {
+        animation-delay: -0.6s !important;
+      }
+      .sb-pad .bars i:nth-child(4) {
+        animation-delay: -0.9s !important;
+      }
+      @keyframes bar {
+        from {
+          height: 25%;
+        }
+        to {
+          height: 100%;
+        }
+      }
+      .sb-pad.loading .swatch {
+        animation: breathe 1.2s var(--ease-out) infinite alternate;
+      }
+      @keyframes breathe {
+        from {
+          opacity: 0.45;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      .mixer {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-top: 32px;
+        padding: 16px 20px;
+        border-radius: var(--radius-md);
+        border: 1px solid var(--studio-line);
+        background: var(--studio-deep);
+      }
+      .mixer label {
+        font-size: var(--fs-small);
+        color: var(--text-secondary);
+        font-weight: 500;
+      }
+      .mixer input[type="range"] {
+        flex: 1;
+        min-width: 140px;
+        accent-color: var(--cadmium-yellow);
+      }
+      .mixer .playing-count {
+        font-size: var(--fs-small);
+        color: var(--text-muted);
+        min-width: 7.5em;
+      }
+
+      /* ---------- Paint: happy little tree generator ---------- */
+      .studio-paint {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 260px;
+        gap: 32px;
+        align-items: start;
+      }
+      .paint-frame {
+        position: relative;
+        border-radius: 6px;
+        overflow: hidden;
+        box-shadow:
+          0 0 0 10px #e9e2d3,
+          0 0 0 11px rgba(0, 0, 0, 0.25),
+          0 30px 60px -20px rgba(0, 0, 0, 0.7);
+        margin: 11px;
+        touch-action: none;
+      }
+      .paint-frame.shake {
+        animation: beat 0.6s var(--ease-out);
+      }
+      @keyframes beat {
+        0%,
+        100% {
+          transform: rotate(0);
+        }
+        15% {
+          transform: rotate(-1.6deg);
+        }
+        30% {
+          transform: rotate(1.4deg);
+        }
+        45% {
+          transform: rotate(-1deg);
+        }
+        60% {
+          transform: rotate(0.6deg);
+        }
+        80% {
+          transform: rotate(-0.2deg);
+        }
+      }
+      #paintCanvas {
+        display: block;
+        width: 100%;
+        height: auto;
+        aspect-ratio: 16 / 10;
+        cursor: crosshair;
+        background: #29323d;
+      }
+      .paint-tools {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        padding: 20px;
+        border-radius: var(--radius-md);
+        border: 1px solid var(--studio-line);
+        background: var(--studio-panel);
+      }
+      .paint-tools h3 {
+        font-family: "Inter", sans-serif;
+        font-size: var(--fs-label);
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        margin-bottom: 10px;
+      }
+      .tool-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .paint-tip {
+        font-size: var(--fs-small);
+        color: var(--text-secondary);
+        line-height: 1.5;
+        min-height: 3em;
+      }
+      .paint-actions {
+        display: grid;
+        gap: 8px;
+      }
+      .paint-actions .btn {
+        width: 100%;
+      }
+
+      /* ---------- Quote ---------- */
+      .quote {
+        padding: clamp(80px, 12vw, 152px) 0;
+        text-align: center;
+        border-top: 1px solid var(--studio-line);
+        background: radial-gradient(
+          60% 80% at 50% 100%,
+          rgba(141, 183, 221, 0.08),
+          transparent
+        );
+      }
+      .quote blockquote {
+        max-width: 22em;
+        margin: 0 auto;
+        font-family: "Playfair Display", serif;
+        font-style: italic;
+        font-size: clamp(1.625rem, 3.4vw, 2.5rem);
+        line-height: 1.3;
+        text-wrap: balance;
+        min-height: 3.9em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: opacity 0.9s var(--ease-out);
+      }
+      .quote blockquote.fade {
+        opacity: 0;
+      }
+      .quote cite {
+        display: block;
+        margin-top: 20px;
+        font-style: normal;
+        font-size: var(--fs-small);
+        color: var(--text-muted);
+      }
+
+      /* ---------- Footer ---------- */
+      footer {
+        border-top: 1px solid var(--studio-line);
+        padding: 48px 0 64px;
+        color: var(--text-muted);
+        font-size: var(--fs-label);
+        line-height: 1.6;
+      }
+      .foot {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr);
+        gap: 24px 48px;
+        align-items: start;
+      }
+      .foot img {
+        width: 96px;
+        height: auto;
+        flex: none;
+      }
+      .foot p + p {
+        margin-top: 8px;
+      }
+      .foot a {
+        color: var(--text-secondary);
+        text-underline-offset: 3px;
+      }
+
+      /* ---------- Video modal ---------- */
+      dialog.video {
+        width: min(1100px, calc(100% - 32px));
+        max-width: none;
+        margin: auto;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        color: inherit;
+        overflow: visible;
+      }
+      dialog.video::backdrop {
+        background: rgba(6, 5, 4, 0.86);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+      }
+      dialog.video[open] {
+        animation: rise 0.6s var(--ease-expo);
+      }
+      @keyframes rise {
+        from {
+          opacity: 0;
+          transform: translateY(16px) scale(0.985);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+      .video-frame {
+        position: relative;
+        aspect-ratio: 16 / 9;
+        border-radius: var(--radius-md);
+        overflow: hidden;
+        background: #000;
+        box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6);
+      }
+      .video-frame iframe {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        border: 0;
+      }
+      .video-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 14px;
+      }
+      .video-bar h2 {
+        font-size: var(--fs-h3);
+      }
+      .video-bar p {
+        font-size: var(--fs-small);
+        color: var(--text-muted);
+      }
+
+      /* ---------- Reveal ---------- */
+      .reveal {
+        opacity: 0;
+        transform: translateY(18px);
+        transition:
+          opacity 1.1s var(--ease-out),
+          transform 1.1s var(--ease-out);
+      }
+      .reveal.in {
+        opacity: 1;
+        transform: none;
+      }
+
+      /* ---------- Responsive ---------- */
+      @media (max-width: 1020px) {
+        .ep-grid {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+        .radio {
+          grid-template-columns: minmax(0, 1fr);
+        }
+        .studio-paint {
+          grid-template-columns: minmax(0, 1fr);
+        }
+        .paint-tools {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        .paint-tools .paint-tip {
+          grid-column: 1 / -1;
+          min-height: 0;
+        }
+      }
+      @media (max-width: 820px) {
+        .hero {
+          padding: 120px 0 88px;
+        }
+        .hero-grid {
+          grid-template-columns: minmax(0, 1fr);
+          gap: 56px;
+        }
+        .easel {
+          margin: 0 12px;
+        }
+        .section-head {
+          grid-template-columns: minmax(0, 1fr);
+        }
+        .sb-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        .ep-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 24px 14px;
+        }
+      }
+      @media (max-width: 560px) {
+        .nav {
+          padding-left: 14px;
+        }
+        .nav-logo img {
+          width: 64px;
+        }
+        .nav-links a {
+          padding: 8px 9px;
+          font-size: 0.8125rem;
+        }
+        .ep-title {
+          font-size: 1rem;
+        }
+        .paint-tools {
+          grid-template-columns: minmax(0, 1fr);
+        }
+        .foot {
+          grid-template-columns: minmax(0, 1fr);
+        }
+        .sb-pad {
+          min-height: 120px;
+          padding: 16px;
+        }
+        .sb-pad .name {
+          font-size: 0.9375rem;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+        .reveal {
+          opacity: 1;
+          transform: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="nav" aria-label="Main">
+      <a class="nav-logo" href="#top" aria-label="Back to top"
+        ><img src="bob-ross-logo.svg" alt="Bob Ross" width="263" height="105"
+      /></a>
+      <ul class="nav-links">
+        <li><a href="#episodes">Episodes</a></li>
+        <li><a href="#radio">Radio</a></li>
+        <li><a href="#sounds">Sounds</a></li>
+        <li><a href="#paint">Paint</a></li>
+      </ul>
+    </nav>
+
+    <main id="top">
+      <!-- ===== HERO ===== -->
+      <header class="hero">
+        <div class="wrap hero-grid">
+          <div class="reveal">
+            <h1>
+              <span id="greeting">Welcome</span>, friend.<br /><em
+                >Let's paint.</em
+              >
+            </h1>
+            <p class="hero-lede">
+              Every episode of The Joy of Painting, a radio that plays the real
+              show back to back, a studio soundboard with a few squirrel friends
+              and a canvas for your own happy little trees.
+            </p>
+            <div class="hero-actions">
+              <a class="btn btn-primary" href="#radio" id="heroRadio"
+                >Tune in to Bob Ross Radio</a
+              >
+              <a class="btn btn-ghost" href="#paint">Paint a little scene</a>
+            </div>
+          </div>
+          <div class="easel reveal">
+            <button
+              class="easel-canvas"
+              id="todayBtn"
+              aria-describedby="todayCaption"
+            >
+              <img id="todayImg" src="" alt="" width="1280" height="720" />
+              <span class="play-badge">Watch this episode</span>
+            </button>
+            <p class="easel-caption" id="todayCaption">
+              <strong id="todayTitle">Today's episode</strong
+              ><span id="todayMeta"></span>
+            </p>
           </div>
         </div>
-      </div>
-      <div class="radio-info">
-        <div class="radio-now-label">Now Playing</div>
-        <div class="radio-track-name" id="rTrackName">Interlude in B-Flat</div>
-        <div class="radio-track-artist" id="rTrackArtist">Larry Owens</div>
-      </div>
-      <div class="radio-controls">
-        <button class="radio-ctrl" onclick="prevTrack()"><svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button>
-        <button class="radio-ctrl play" id="rPlayBtn" onclick="toggleRadio()"><svg viewBox="0 0 24 24" id="rPlayIcon"><polygon points="5,3 19,12 5,21"/></svg></button>
-        <button class="radio-ctrl" onclick="nextTrack()"><svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg></button>
-      </div>
-      <div class="radio-progress"><div class="radio-progress-fill" id="rProgress"></div></div>
-      <div class="radio-list" id="rList"></div>
-    </div>
-  </div>
+      </header>
 
-  <!-- SOUNDBOARD -->
-  <div class="panel panel-soundboard reveal" data-delay="3">
-    <div class="panel-header">
-      <div class="panel-header-left">
+      <!-- ===== EPISODES ===== -->
+      <section class="section" id="episodes" aria-labelledby="episodesTitle">
+        <div class="wrap">
+          <div class="section-head reveal">
+            <h2 id="episodesTitle">The Joy of Painting</h2>
+            <p>
+              <span id="epCount">387</span> episodes across 31 seasons, all
+              streaming from the official Bob Ross channel. Pick a season, pick
+              a painting and settle in.
+            </p>
+          </div>
+          <div
+            class="season-bar"
+            id="seasonBar"
+            role="group"
+            aria-label="Filter by season"
+          ></div>
+          <div class="ep-grid" id="epGrid"></div>
+          <div class="ep-more">
+            <button class="btn btn-ghost" id="epMore">
+              Show more episodes
+            </button>
+          </div>
+        </div>
+      </section>
 
-        <div class="panel-icon yellow"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg></div>
+      <!-- ===== RADIO ===== -->
+      <section class="section" id="radio" aria-labelledby="radioTitle">
+        <div class="wrap">
+          <div class="section-head reveal">
+            <h2 id="radioTitle">Bob Ross Radio</h2>
+            <p>
+              The actual show, episode after episode: the music, the brush and
+              that voice. Leave it on while you work and layer in sounds from
+              the studio below.
+            </p>
+          </div>
+          <div class="radio reveal">
+            <div class="radio-main">
+              <div class="radio-screen" id="radioScreen">
+                <div id="radioPlayer"></div>
+                <div class="radio-fallback" id="radioFallback">
+                  <p>
+                    The player couldn't start here. Open this page from a web
+                    address rather than a local file, or watch on YouTube.
+                  </p>
+                  <a
+                    class="btn btn-ghost"
+                    id="radioFallbackLink"
+                    href="https://www.youtube.com/@bobross_thejoyofpainting"
+                    target="_blank"
+                    rel="noopener"
+                    >Watch on YouTube</a
+                  >
+                </div>
+              </div>
+              <div class="radio-now">
+                <div class="radio-now-text">
+                  <span class="on-air" id="onAir"
+                    ><i></i><span id="onAirText">Off air</span></span
+                  >
+                  <h3 class="now-title" id="nowTitle">Tuning in</h3>
+                  <p class="now-sub" id="nowSub">&nbsp;</p>
+                </div>
+                <div class="radio-controls">
+                  <button
+                    class="icon-btn"
+                    id="rPrev"
+                    aria-label="Previous episode"
+                  >
+                    <svg viewBox="0 0 24 24">
+                      <path d="M6 6h2v12H6zm3.5 6 8.5 6V6z" />
+                    </svg>
+                  </button>
+                  <button class="icon-btn play" id="rPlay" aria-label="Play">
+                    <svg viewBox="0 0 24 24" id="rPlayIcon">
+                      <path d="M7 4.5v15l12.5-7.5z" />
+                    </svg>
+                  </button>
+                  <button class="icon-btn" id="rNext" aria-label="Next episode">
+                    <svg viewBox="0 0 24 24">
+                      <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              <div class="radio-progress" aria-hidden="true">
+                <span id="radioBar"></span>
+              </div>
+              <div class="radio-times" aria-hidden="true">
+                <span id="tNow">0:00</span><span id="tDur">0:00</span>
+              </div>
+            </div>
+            <div class="radio-side">
+              <h3 class="side-label">Station</h3>
+              <div
+                class="stations"
+                role="group"
+                aria-label="Station"
+                id="stations"
+              ></div>
+              <div class="up-next">
+                <h3>Up next</h3>
+                <ol id="upNext"></ol>
+              </div>
+            </div>
+          </div>
+          <p class="fineprint">
+            Episodes stream from the official
+            <a
+              href="https://www.youtube.com/@bobross_thejoyofpainting"
+              target="_blank"
+              rel="noopener"
+              >Bob Ross YouTube channel</a
+            >.
+          </p>
+        </div>
+      </section>
+
+      <!-- ===== SOUNDBOARD ===== -->
+      <section class="section" id="sounds" aria-labelledby="soundsTitle">
+        <div class="wrap">
+          <div class="section-head reveal">
+            <h2 id="soundsTitle">Studio soundboard</h2>
+            <p>
+              Tap a pad to start it and tap again to stop. Layer as many as you
+              like: knife on the palette, a fan brush tapping in leaves and
+              Peapod chattering somewhere off set.
+            </p>
+          </div>
+          <div class="sb-groups">
+            <div class="sb-group reveal">
+              <h3>At the easel</h3>
+              <p>Brush, knife and canvas, shaped in your browser.</p>
+              <div class="sb-grid" id="sbBrush"></div>
+            </div>
+            <div class="sb-group reveal">
+              <h3>Squirrels</h3>
+              <p>
+                Real field recordings, for Peapod and every little critter who
+                visited the studio.
+              </p>
+              <div class="sb-grid" id="sbSquirrel"></div>
+            </div>
+          </div>
+          <div class="mixer reveal">
+            <label for="vol">Volume</label>
+            <input type="range" id="vol" min="0" max="100" value="70" />
+            <span class="playing-count" id="playingCount" aria-live="polite"
+              >Nothing playing</span
+            >
+            <button class="btn btn-ghost" id="stopAll">Stop all</button>
+          </div>
+          <p class="fineprint">
+            Squirrel recordings from Wikimedia Commons: grey squirrel by the
+            British Library (CC BY-SA 4.0); treetop chirps by Jidanni (CC BY-SA
+            4.0); snack time by Subhashish Panigrahi (CC BY-SA 4.0); Douglas
+            squirrel by Parande (CC BY-SA 3.0).
+          </p>
+        </div>
+      </section>
+
+      <!-- ===== PAINT ===== -->
+      <section class="section" id="paint" aria-labelledby="paintTitle">
+        <div class="wrap">
+          <div class="section-head reveal">
+            <h2 id="paintTitle">Paint a happy little scene</h2>
+            <p>
+              Pick a brush and click the canvas. Drag with the tree brush to
+              grow a whole forest. Things lower on the canvas come closer, just
+              like on the show.
+            </p>
+          </div>
+          <div class="studio-paint reveal">
+            <div class="paint-frame" id="paintFrame">
+              <canvas
+                id="paintCanvas"
+                width="1600"
+                height="1000"
+                aria-label="Painting canvas. Click to add the selected element."
+              ></canvas>
+            </div>
+            <div class="paint-tools">
+              <div>
+                <h3>Brush</h3>
+                <div
+                  class="tool-row"
+                  id="tools"
+                  role="group"
+                  aria-label="Brush"
+                >
+                  <button class="chip" data-tool="tree" aria-pressed="true">
+                    Happy tree
+                  </button>
+                  <button class="chip" data-tool="bush" aria-pressed="false">
+                    Little bush
+                  </button>
+                  <button
+                    class="chip"
+                    data-tool="mountain"
+                    aria-pressed="false"
+                  >
+                    Mountain
+                  </button>
+                  <button class="chip" data-tool="cloud" aria-pressed="false">
+                    Cloud
+                  </button>
+                </div>
+              </div>
+              <div>
+                <h3>Sky</h3>
+                <div
+                  class="tool-row"
+                  id="skies"
+                  role="group"
+                  aria-label="Sky"
+                ></div>
+              </div>
+              <p class="paint-tip" id="paintTip">
+                Every tree needs a friend. Drag to grow a forest.
+              </p>
+              <div class="paint-actions">
+                <button class="btn btn-ghost" id="paintUndo">Undo</button>
+                <button class="btn btn-ghost" id="paintRandom">
+                  Happy accident
+                </button>
+                <button class="btn btn-ghost" id="paintClear">
+                  Beat the devil out of it
+                </button>
+                <button class="btn btn-primary" id="paintSave">
+                  Save painting
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== QUOTE ===== -->
+      <section class="quote" aria-label="A word from Bob">
+        <div class="wrap">
+          <blockquote id="quote">
+            “We don't make mistakes, just happy little&nbsp;accidents.”
+          </blockquote>
+          <cite>Bob Ross</cite>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="wrap foot">
+        <img src="bob-ross-logo.svg" alt="" width="263" height="105" />
         <div>
-          <div class="panel-title">ASMR Soundboard</div>
-          <div class="panel-subtitle">Tap to play &bull; Layer sounds</div>
+          <p>
+            An unofficial fan tribute, not affiliated with Bob Ross Inc. Bob
+            Ross and The Joy of Painting are trademarks of Bob Ross Inc.
+            Episodes and thumbnails stream from the official
+            <a
+              href="https://www.youtube.com/@bobross_thejoyofpainting"
+              target="_blank"
+              rel="noopener"
+              >Bob Ross YouTube channel</a
+            >.
+          </p>
+          <p>
+            Squirrel sounds from Wikimedia Commons under CC BY-SA. Brush and
+            knife sounds are generated in your browser.
+          </p>
         </div>
       </div>
-    </div>
-    <div class="panel-body">
-      <div class="sb-grid" id="sbGrid"></div>
-      <div class="sb-controls">
-        <label>Vol</label>
-        <input type="range" class="sb-slider" min="0" max="100" value="70" oninput="setMasterVol(this.value)">
-        <button class="sb-stop" onclick="stopAll()">Stop All</button>
-      </div>
-    </div>
-  </div>
+    </footer>
 
-  <!-- WALLPAPERS -->
-  <div class="panel panel-wallpapers reveal" data-delay="4">
-    <div class="panel-header">
-      <div class="panel-header-left">
-
-        <div class="panel-icon brown"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
+    <dialog class="video" id="videoModal" aria-labelledby="videoTitle">
+      <div class="video-bar">
         <div>
-          <div class="panel-title">Happy Little Wallpapers</div>
-          <div class="panel-subtitle">Desktops &bull; Mobile</div>
+          <h2 id="videoTitle">Episode</h2>
+          <p id="videoMeta"></p>
         </div>
+        <button class="icon-btn" id="videoClose" aria-label="Close video">
+          <svg viewBox="0 0 24 24">
+            <path
+              d="M18.3 5.7 12 12l6.3 6.3-1.4 1.4L10.6 13.4 4.3 19.7 2.9 18.3 9.2 12 2.9 5.7l1.4-1.4 6.3 6.3 6.3-6.3z"
+            />
+          </svg>
+        </button>
       </div>
-    </div>
-    <div class="panel-body">
-      <div class="wp-tabs" id="wpTabs"></div>
-      <div class="wp-grid" id="wpGrid"></div>
-    </div>
-  </div>
+      <div class="video-frame" id="videoFrame"></div>
+    </dialog>
 
-  <!-- STORYBOOKS -->
-  <div class="panel panel-storybooks reveal" data-delay="5">
-    <div class="panel-header">
-      <div class="panel-header-left">
+    <script>
+      // ============================================
+      // DATA: [season, episode, title, YouTube id] from the official channel
+      // ============================================
+      const EPISODES = [
+        [1, 1, "A Walk in the Woods", "oh5p5f5_-7A"],
+        [1, 2, "Mt. McKinley", "RInDWhYceLU"],
+        [1, 3, "Ebony Sunset", "UOziR7PoVco"],
+        [1, 4, "Winter Mist", "0pwoixRikn4"],
+        [1, 5, "Quiet Stream", "DFSIQNjKRfk"],
+        [1, 6, "Winter Moon", "loAzRUzx1wI"],
+        [1, 7, "Autumn Mountain", "sDdpc8uisD0"],
+        [1, 8, "Peaceful Valley", "kQlFwTOkYzg"],
+        [1, 9, "Seascape", "QxcS7p1VHyQ"],
+        [1, 10, "Mountain Lake", "wDnLlywAL5I"],
+        [1, 11, "Winter Glow", "Q03YvknOVe0"],
+        [1, 12, "Snow Fall", "4E35-8x_y04"],
+        [2, 1, "Meadow Lake", "GARWowi0QXI"],
+        [2, 2, "Winter Sun", "VPfYRj4DDco"],
+        [2, 3, "Ebony Sea", "aOJsKNzO3i8"],
+        [2, 4, "Shades of Grey", "I-ousb8-SD0"],
+        [2, 5, "Autumn Splendor", "rTTWw5Gd79I"],
+        [2, 6, "Black River", "6O4sfJd8G_M"],
+        [2, 7, "Brown Mountain", "Vx6v47gHBWM"],
+        [2, 8, "Reflections", "0FYfo94qefg"],
+        [2, 9, "Black and White Seascape", "PMDyPrE0puo"],
+        [2, 10, "Lazy River", "BW2wKKFvH1g"],
+        [2, 11, "Black Waterfall", "GzSqjyQUPZQ"],
+        [2, 12, "Mountain Waterfall", "9jIt95PCFAA"],
+        [2, 13, "Final Grace", "miJ19Kz_i3Y"],
+        [3, 1, "Mountain Retreat", "hoimk4s8JoQ"],
+        [3, 2, "Blue Moon", "loit61vLUMc"],
+        [3, 3, "Bubbling Stream", "fuFalEXVN0k"],
+        [3, 4, "Winter Night", "8ysFkNYwhAE"],
+        [3, 5, "Distant Hills", "8Zge88tVwjE"],
+        [3, 6, "Covered Bridge", "OHSm8kLE7js"],
+        [3, 7, "Quiet Inlet", "9N5IWKzYIyU"],
+        [3, 8, "Night Light", "l141Y0x8om0"],
+        [3, 9, "The Old Mill", "OFKFUJ9eDNs"],
+        [3, 10, "Campfire", "L5bXkI0-pEg"],
+        [3, 11, "Rustic Barn", "WJJwrnFhUUg"],
+        [3, 12, "Hidden Lake", "P_DaqkFbnac"],
+        [4, 1, "Purple Splendor", "hP4GfMgsNVE"],
+        [4, 2, "Tranquil Valley", "PbchoOWWCZs"],
+        [4, 3, "Majestic Mountains", "NcVeRlPu_5w"],
+        [4, 4, "Winter Sawscape", "lmKAwKrONmE"],
+        [4, 5, "Evening Seascape", "y5k4GXw_-yI"],
+        [4, 6, "Warm Summer Day", "GBN9AIw3Ao4"],
+        [4, 7, "Cabin in the Woods", "81QKellPA70"],
+        [4, 8, "Wetlands", "2FpVyGanPwM"],
+        [4, 9, "Cool Waters", "tJRvBcqQd5A"],
+        [4, 10, "Quiet Woods", "wIZX57I4aDs"],
+        [4, 11, "Northwest Majesty", "9DU6bunvD_g"],
+        [4, 12, "Autumn Days", "VAdMkf-AAPM"],
+        [4, 13, "Mountain Challenge", "o2cjLA_wgIk"],
+        [5, 1, "Mountain Waterfall", "DqhzxdkdQS0"],
+        [5, 2, "Twilight Meadow", "6evqNlOO7Bw"],
+        [5, 4, "Winter Stillness", "qg9c1SqdRko"],
+        [5, 5, "Quiet Pond", "aiK9xOIJtV8"],
+        [5, 6, "Ocean Sunrise", "u0Bz6TNUK1Q"],
+        [5, 7, "Bubbling Brook", "LiKCzeqn-kg"],
+        [5, 8, "Arizona Splendor", "spFwCh2616s"],
+        [5, 9, "Anatomy of a Wave", "DFQlu6eqrBo"],
+        [5, 10, "The Windmill", "xj8xsTSkbUk"],
+        [5, 11, "Autumn Glory", "yTzlm_t0RmY"],
+        [5, 12, "Indian Girl", "2uXMx8Kjs8I"],
+        [5, 13, "Meadow Stream", "87MMbN1bQCs"],
+        [6, 1, "Blue River", "LygUyAb78oY"],
+        [6, 2, "Nature's Edge", "Bcqyzo85A1o"],
+        [6, 3, "Morning Mist", "wbZreRaE74k"],
+        [6, 4, "Whispering Stream", "QglIjlqsUdU"],
+        [6, 5, "Secluded Forest", "USkduOfwJok"],
+        [6, 6, "Snow Trail", "n9EsFFtwZnE"],
+        [6, 7, "Arctic Beauty", "UQ-RTZCOQn0"],
+        [6, 8, "Horizons West", "m6UM-rN2D6s"],
+        [6, 9, "High Chateau", "dafH8ks9Zww"],
+        [6, 10, "Country Life", "j8Jf7QVKLgQ"],
+        [6, 11, "Western Expanse", "MTInkV5ODjk"],
+        [6, 12, "Marshlands", "Ugiwi8uizpg"],
+        [6, 13, "Blaze of Color", "se7wOprxRGs"],
+        [7, 1, "Winter Cabin", "kdlHV6ceI_g"],
+        [7, 2, "Secluded Lake", "2OxSJcFvpoU"],
+        [7, 3, "Evergreens at Sunset", "YQPEy3hYGo8"],
+        [7, 4, "Mountain Cabin", "E3IAMvO8GyM"],
+        [7, 5, "Portrait of Sally", "MHJB0IBnuD4"],
+        [7, 6, "Misty Waterfall", "530_cVmexiI"],
+        [7, 7, "Barn at Sunset", "WT6n0K2zGnA"],
+        [7, 8, "Mountain Splendor", "GhOGZMpPUSE"],
+        [7, 10, "Mountain Glory", "0M9pwLHRR2c"],
+        [7, 11, "Grey Winter", "sS-hNYgDUak"],
+        [7, 12, "Dock Scene", "4KYxkqlzyqM"],
+        [7, 13, "Dark Waterfall", "VqMbL00eZqw"],
+        [8, 1, "Misty Rolling Hills", "cC5ozePVKGI"],
+        [8, 2, "Lakeside Cabin", "CP6_5cQVZvQ"],
+        [8, 3, "Warm Winter Day", "mUJoNLWQ1yI"],
+        [8, 4, "Waterside Way", "uj5FE70BcB0"],
+        [8, 5, "Hunter's Haven", "Da4SPyh1ATM"],
+        [8, 6, "Bubbling Mountain Brook", "U2_SKgM3f4A"],
+        [8, 7, "Winter Hideaway", "19oz9XHZNzA"],
+        [8, 8, "Foot of the Mountain", "cIUBUc_ITBc"],
+        [8, 9, "Majestic Pine", "x5CoQj9zr-c"],
+        [8, 10, "Cactus at Sunset", "XBqD3QhKU24"],
+        [8, 12, "Lonely Retreat", "qTDQt_PdlYc"],
+        [8, 13, "Northern Lights", "vgbMONXc9Cs"],
+        [9, 1, "Winter Evergreens", "O6L5YPt9CeU"],
+        [9, 2, "Surf's Up", "ZKxFvyyOBPQ"],
+        [9, 3, "Red Sunset", "e5JhYi_G-l0"],
+        [9, 4, "Meadow Road", "u5VT_WGM0kg"],
+        [9, 5, "Winter Oval", "pYWiLm_-sXw"],
+        [9, 6, "Secluded Beach", "WGUcw_kFvzU"],
+        [9, 7, "Forest Hills", "E3XW_Zp238U"],
+        [9, 8, "Little House by the Road", "3CDg_9gL-5M"],
+        [9, 9, "Mountain Path", "e0VUprkc1n0"],
+        [9, 10, "Country Charm", "9wp8NRzCJnw"],
+        [9, 11, "Nature's Paradise", "7yU55PUls2c"],
+        [9, 12, "Mountain by the Sea", "so--opB-yuQ"],
+        [9, 13, "Mountain Hideaway", "q48EWPrbzVs"],
+        [10, 1, "Towering Peaks", "1s58rW0_LN4"],
+        [10, 2, "Cabin at Sunset", "a6Wil3OXNuI"],
+        [10, 3, "Twin Falls", "cMwkY8ojRik"],
+        [10, 4, "Secluded Bridge", "vrAMRxBB5KI"],
+        [10, 5, "Ocean Breeze", "XZmdzfvXRuw"],
+        [10, 6, "Autumn Woods", "vKyMU5Z8cDI"],
+        [10, 7, "Winter Solitude", "ov4YaCQB9co"],
+        [10, 8, "Golden Sunset", "CiNDyckERXQ"],
+        [10, 10, "Ocean Sunset", "OJ_xqtvZf3o"],
+        [10, 11, "Triple View", "zoTeyliLn5o"],
+        [10, 12, "Winter Frost", "8satX-hLkuI"],
+        [10, 13, "Lakeside Cabin", "1l_TsfCIb_I"],
+        [11, 1, "Mountain Stream", "xdFCj6BzQio"],
+        [11, 2, "Country Cabin", "Dkww2nHpuZw"],
+        [11, 3, "Daisy Delight", "HuHC1RqtvDA"],
+        [11, 4, "Hidden Stream", "JGzTg8fCj4w"],
+        [11, 5, "Towering Glacier", "67vdGbA3Xkg"],
+        [11, 6, "Oval Barn", "HqBhCibidNM"],
+        [11, 7, "Lakeside Path", "1yjGoJokbZg"],
+        [11, 8, "Sunset Oval", "9xG6IzcGotI"],
+        [11, 9, "Winter Barn", "_xkn0ceDreo"],
+        [11, 10, "Sunset over the Waves", "c4b_B2F1eZg"],
+        [11, 11, "Golden Glow", "aA8RhtaWACA"],
+        [11, 12, "Roadside Barn", "vJpKhiXvXdA"],
+        [11, 13, "Happy Accident", "Fw6odlNp7_8"],
+        [12, 1, "Golden Knoll", "-O0Bs65eN5w"],
+        [12, 2, "Mountain Reflections", "rzYpa4XGSnA"],
+        [12, 3, "Secluded Mountain", "3PZabdohLso"],
+        [12, 4, "Bright Autumn Trees", "aR-C3h5zURM"],
+        [12, 5, "Black Seascape", "P_aCan4cBwc"],
+        [12, 6, "Steep Mountains", "fRK8_ioYWw4"],
+        [12, 7, "Quiet Mountains River", "Leiw-FtADZc"],
+        [12, 8, "Evening Waterfall", "PutvF_P4588"],
+        [12, 9, "Tropical Seascape", "RrBsbqO9aqI"],
+        [12, 10, "Mountain at Sunset", "HCsCatvigtw"],
+        [12, 11, "Soft Mountain Glow", "gOGJYHWjXgE"],
+        [12, 12, "Mountain in an Oval", "1jRPshs27H8"],
+        [12, 13, "Winter Mountain", "46vI20697HI"],
+        [13, 1, "Rolling Hills", "H4GyGrT7lEQ"],
+        [13, 2, "Frozen Solitude", "kNZssD9zWlw"],
+        [13, 3, "Meadow Brook", "06W8GsWj2Yg"],
+        [13, 4, "Evening at Sunset", "7ZUQTXuDPaI"],
+        [13, 5, "Mountain View", "dJfnAyDLwPY"],
+        [13, 6, "Hidden Creek", "KmoRz01bm0Y"],
+        [13, 7, "Peaceful Haven", "j20pZ96E_CE"],
+        [13, 8, "Mountain Exhibition", "bgI3_1quJ18"],
+        [13, 9, "Emerald Waters", "lLunPQBzW6g"],
+        [13, 10, "Mountain Summit", "kasGRkfkiPM"],
+        [13, 11, "Cabin Hideaway", "NjTlW2NL1Lo"],
+        [13, 12, "Oval Essence", "q7WXF_BSEXw"],
+        [13, 13, "Lost Lake", "9-ATP8xyDM0"],
+        [14, 1, "Distant Mountains", "GpA9UM7QGag"],
+        [14, 2, "Meadow Brook Surprise", "Ov5oIHTAa10"],
+        [14, 3, "Mountain Moonlight Oval", "CigXQtT6BPM"],
+        [14, 4, "Snowy Solitude", "1ZriQGhSFTM"],
+        [14, 5, "Mountain River", "CnMLKAGi0yM"],
+        [14, 6, "Graceful Mountains", "0uVe8T-vVVg"],
+        [14, 7, "Windy Waves", "y6GVVjG4HMg"],
+        [14, 8, "On a Clear Day", "e63Cgln6Yag"],
+        [14, 9, "Riverside Escape Oval", "d83REwSGfGo"],
+        [14, 11, "Shadow Pond", "BQWJ3kqonpA"],
+        [14, 12, "Misty Forest Oval", "ddU9vQvSpw8"],
+        [14, 13, "Natural Wonder", "knOutsaiKfU"],
+        [15, 1, "Splendor of Winter", "oJvk7gPDHiE"],
+        [15, 2, "Colors of Nature", "Me9Ietooq4w"],
+        [15, 3, "Grandpa's Barn", "IPPU49PyfEA"],
+        [15, 4, "Peaceful Reflections", "gYuH4Ilqdhs"],
+        [15, 5, "Hidden Winter Moon Oval", "yxAMOdl6RJE"],
+        [15, 6, "Waves of Wonder", "tayQX_ng-Nc"],
+        [15, 7, "Cabin by the Pond", "TyOO6WeP2AY"],
+        [15, 8, "Fall Stream", "ZY0ofhdV_L0"],
+        [15, 9, "Christmas Eve Snow", "cVqFG2pxK2A"],
+        [15, 10, "Forest Down Oval", "COsJUfPN2dA"],
+        [15, 11, "Pathway to Autumn", "Hg5RKc6xiL4"],
+        [15, 12, "Deep Forest Lake", "2bjFmSQjQrw"],
+        [15, 13, "Peaks of Majesty", "lTb8DN6G6dE"],
+        [16, 1, "Two Seasons", "jwVz0uTLH1I"],
+        [16, 2, "Nestled Cabin", "l_jN9KN257M"],
+        [16, 3, "Wintertime Discovery", "uZyZW3tkCE0"],
+        [16, 4, "Mountain Mirage Wood Shape", "jfCsew_mz7A"],
+        [16, 5, "Double Oval Fantasy", "4jAsLpJzjHM"],
+        [16, 6, "Contemplative Lady", "gnp6WE7Ql-s"],
+        [16, 7, "Deep Woods", "rE5ZVs_YJfE"],
+        [16, 8, "High Tide", "_IREQ4SIcX8"],
+        [16, 9, "Barn in Snow Oval", "wJmi7-G9r-w"],
+        [16, 11, "Waterfall Wonder", "AGhXEPfp-W4"],
+        [16, 12, "Mighty Mountain Lake", "4vXB2R8ybDE"],
+        [16, 13, "Wooded Stream Oval", "-XA2h17y3HU"],
+        [17, 1, "Golden Mist Oval", "lhpfaW0k6uM"],
+        [17, 2, "The Old Home Place", "EVQcDEiJh2o"],
+        [17, 3, "Soothing Vista", "NqfRLiv0SZ0"],
+        [17, 4, "Stormy Seas", "LE6agCR5iBw"],
+        [17, 5, "Country Time", "e_bt9rQoGN0"],
+        [17, 6, "A Mild Winter's Day", "BbYO579MmhA"],
+        [17, 7, "Spectacular Waterfall", "nK-HebXL2uw"],
+        [17, 8, "View from the Park", "Q4n90jsOUtY"],
+        [17, 10, "Old Country Mill", "n8HlFCQACYA"],
+        [17, 11, "Morning Walk", "pSvgNkQdR2Y"],
+        [17, 12, "Nature's Splendor", "uCAtI2IwEwk"],
+        [18, 1, "Half-Oval Vignette", "uY3fIry2tOE"],
+        [18, 2, "Absolutely Autumn", "PGPVpil2UmE"],
+        [18, 3, "Mountain Seclusion", "EBZKuVbRY54"],
+        [18, 4, "Crimson Oval", "R7Y3izMFPbM"],
+        [18, 5, "Autumn Exhibition", "6afHY2d9Lv8"],
+        [18, 6, "Majestic Peaks", "lilbzLCNnDo"],
+        [18, 7, "Golden Morning Mist", "rCHXqj4DHlM"],
+        [18, 8, "Winter Lace", "WJF_qoQRPck"],
+        [18, 9, "Seascape Fantasy", "sBBBilrDuSw"],
+        [18, 10, "Double Oval Stream", "rRjnHdr9DmU"],
+        [18, 11, "Enchanted Forest", "ikR7UT9mVBw"],
+        [18, 12, "Southwest Serenity", "EVfPPJ5FUmA"],
+        [18, 13, "Rippling Waters", "XvnJBynSiT0"],
+        [19, 1, "Snowfall Magic", "1enWTsRi16o"],
+        [19, 2, "Quiet Mountain Lake", "2gq2V6dCt2I"],
+        [19, 3, "Final Embers of Sunlight", "IeFbdk36MUU"],
+        [19, 4, "Snowy Morn", "iB1TDWlo0kk"],
+        [19, 5, "Camper's Haven", "C34WAUgkAT0"],
+        [19, 6, "Waterfall in the Woods", "uBRKVa7sy1Q"],
+        [19, 7, "Covered Bridge Oval", "F4iPbH1OHsQ"],
+        [19, 8, "Scenic Seclusion", "d50HkqB9JEM"],
+        [19, 9, "Ebb Tide", "mFOna_LN7Ys"],
+        [19, 10, "After the Rain", "Wj-3ct7RvAI"],
+        [19, 11, "Winter Elegance", "JjBZzKp_u5E"],
+        [19, 12, "Evening's Peace", "uEUMVwc4o5U"],
+        [19, 13, "Valley of Tranquility", "FnY7jDY5PsE"],
+        [20, 1, "Mystic Mountain", "VlucWfTUo1A"],
+        [20, 2, "New Day's Dawn", "vbPdQ0w8ylg"],
+        [20, 3, "Winter in Pastel", "kbnXZRNMouM"],
+        [20, 4, "Hazy Day", "5U3G61r35Mc"],
+        [20, 5, "Divine Elegance", "mb-Gwx1S5Gs"],
+        [20, 6, "Cliffside", "p6Uy2qOLvGk"],
+        [20, 7, "Autumn Fantasy", "FozIp7Va7dY"],
+        [20, 8, "The Old Oak Tree", "dN4HjAn8p5U"],
+        [20, 9, "Winter Paradise", "DY1aBv8Z1SQ"],
+        [20, 10, "Days Gone By", "DmYhNHVIdMI"],
+        [20, 11, "Change of Seasons", "QbgPu5f2Vf8"],
+        [20, 12, "Hidden Delight", "ZyPNzDaaDt8"],
+        [20, 13, "Double Take", "ppzFgG2K2k4"],
+        [21, 1, "Valley View", "pw5ETGiiBRg"],
+        [21, 2, "Tranquil Dawn", "4abDq6Q-mlM"],
+        [21, 3, "Royal Majesty", "ubUXBqE6t0U"],
+        [21, 4, "Serenity", "crqmO3qDdco"],
+        [21, 5, "Cabin at Trails End", "GLkLO4KqTRs"],
+        [21, 6, "Mountain Rhapsody", "H4VsmKU5T7g"],
+        [21, 7, "Wilderness Cabin", "GWehiacnd1E"],
+        [21, 8, "By the Sea", "8tHHBTK6wwc"],
+        [21, 9, "Indian Summer", "pfWV8NkotvU"],
+        [21, 10, "Blue Winter", "liR0gS0sZY0"],
+        [21, 11, "Desert Glow", "QyncJfL_HmU"],
+        [21, 12, "Lone Mountain", "NJbzIftLLmU"],
+        [21, 13, "Florida's Glory", "HQC5sPN9Xhc"],
+        [22, 1, "Autumn Images", "HMx34Am6RFg"],
+        [22, 2, "Hint of Springtime", "C-OSaHvt8ms"],
+        [22, 3, "Around the Bend", "Kl5X3icOVvw"],
+        [22, 4, "Countryside Oval", "hdNH5axK4u0"],
+        [22, 5, "Russet Winter", "aE4nID1p-t0"],
+        [22, 6, "Purple Haze", "ZoJ2tcXWb7g"],
+        [22, 7, "Dimensions", "JUuP75RVZDI"],
+        [22, 8, "Deep Wilderness Home", "uZWNvDFfbUk"],
+        [22, 9, "Haven in the Valley", "Qccgam514ds"],
+        [22, 10, "Wintertime Blues", "dbMJVM4iL2Q"],
+        [22, 11, "Pastel Seascape", "K4aud_SpFDQ"],
+        [22, 12, "Country Creek", "JDa6JPcqy88"],
+        [22, 13, "Silent Forest", "AE1GKcL3NuI"],
+        [23, 1, "Frosty Winter Morn", "1-9_enMBquw"],
+        [23, 2, "Forest Edge", "puGk2iFvvp0"],
+        [23, 3, "Mountain Ridge Lake", "Hq-z06i6HCs"],
+        [23, 4, "Reflections of Gold", "8f9CCnqJ_1Y"],
+        [23, 5, "Quiet Cove", "cR9hTbSomx4"],
+        [23, 6, "Rivers Peace", "flCWS9LB4Ks"],
+        [23, 7, "At Dawn's Light", "HFdTxqEznIk"],
+        [23, 8, "Valley Waterfall", "VYcsYzzRae4"],
+        [23, 9, "Toward Days End", "cFi_fJl40BA"],
+        [23, 10, "Falls in the Glen", "txAtX-VyVNc"],
+        [23, 11, "Frozen Beauty in Vignette", "H15kV1wbDG4"],
+        [23, 12, "Crimson Tide", "Y7SDU4i6Fco"],
+        [23, 13, "Winter Bliss", "yInYwy6AsDQ"],
+        [24, 1, "Gray Mountain", "4XxClvPZ1RE"],
+        [24, 2, "Wayside Pond", "FPW2FwK4IOo"],
+        [24, 3, "Teton Winter", "I4h6TC4CPJY"],
+        [24, 4, "Little Home in the Meadow", "nU1zV93N-kI"],
+        [24, 5, "A Pretty Autumn Day", "HWedDS3p7XI"],
+        [24, 6, "Mirrored Images", "i29frkR1T98"],
+        [24, 7, "Back-Country Path", "2iNMoQB1Pe8"],
+        [24, 8, "Graceful Waterfall", "fBh1nA4pMDY"],
+        [24, 10, "Rowboat on the Beach", "hfvhXOvg43w"],
+        [24, 11, "Portrait of Winter", "JLnIUGOupOA"],
+        [24, 12, "The Footbridge", "RqtDliGeyTg"],
+        [24, 13, "Snowbound Cabin", "obSLZWXmDak"],
+        [25, 1, "Hide A Way Cove", "l_HqMYquc08"],
+        [25, 2, "Enchanted Falls Oval", "HklPkQ0lSKA"],
+        [25, 3, "Not Quite Spring", "N_u6x7LeyTM"],
+        [25, 4, "Splashes of Autumn", "YcbaMqq_X8s"],
+        [25, 6, "Oriental Falls", "v8Znj8bbmCQ"],
+        [25, 7, "Autumn Palette", "HWrvW-NgaOY"],
+        [25, 8, "Cypress Swamp", "FdIUHudQABI"],
+        [25, 9, "Downstream View", "KsDPg5HZYNw"],
+        [25, 10, "Just Before the Storm", "Rh-jKrMrmOA"],
+        [25, 11, "Fisherman's Paradise", "uJLK85uU5mA"],
+        [25, 12, "Desert Hues", "UUNNXGVNTuI"],
+        [25, 13, "The Property Line", "ivesI3rU7dU"],
+        [26, 1, "In the Stillness of Morning", "5rfGa1_iJpw"],
+        [26, 2, "Delightful Meadow Home", "tWoInh2USOs"],
+        [26, 3, "First Snow", "raAkJKeo0Sk"],
+        [26, 4, "Lake in the Valley", "KvJmSrErm20"],
+        [26, 5, "A Trace of Spring", "JMPwj3u4ZTA"],
+        [26, 6, "An Arctic Winter Day", "9BHWlbjd95c"],
+        [26, 7, "Snow Birch", "wKeemvioVrM"],
+        [26, 8, "Early Autumn", "SLQXlFLoqQc"],
+        [26, 9, "Tranquil Wooded Stream", "lSeRrm5ZK9c"],
+        [26, 10, "Purple Mountain Range", "nkDA_R-XmqA"],
+        [26, 11, "Storm's A Comin", "EHD9u-lo2wc"],
+        [26, 12, "Sunset Aglow", "gMEZp47VKC0"],
+        [26, 13, "Evening at the Falls", "RulXVcpgpqw"],
+        [27, 1, "Twilight Beauty", "0mJqzzeWyXs"],
+        [27, 2, "Angler's Haven", "XlwfcXZ0AIU"],
+        [27, 3, "Rustic Winter Woods", "3q8Zi9480lw"],
+        [27, 4, "Wilderness Falls", "gxd0MPX8c6I"],
+        [27, 5, "Winter at the Farm", "LeIVNKnWz7o"],
+        [27, 6, "Daisies at Dawn", "_kkZcIgocBM"],
+        [27, 7, "A Spectacular View", "7R9HcaDT9P4"],
+        [27, 8, "Daybreak", "crWDcTvDmec"],
+        [27, 9, "Island Paradise", "Cg3XAVhAas0"],
+        [27, 11, "Splendor of a Snowy Winter", "JdXCoxkOdwQ"],
+        [27, 12, "Forest River", "wrbGlR22K0Q"],
+        [27, 13, "Golden Glow of Morning", "qXElmiqzcI0"],
+        [28, 1, "Fisherman's Trail", "VnZEpic2UzU"],
+        [28, 2, "A Warm Winter", "_TTdw3YnXuo"],
+        [28, 3, "Under Pastel Skies", "lzODyJS2ZIg"],
+        [28, 4, "Golden Rays of Sunshine", "zxj3xLDNxo0"],
+        [28, 5, "The Magic of Fall", "bSm3fmEyJ20"],
+        [28, 6, "Glacier Lake", "TohG7F8M3Ls"],
+        [28, 7, "The Old Weathered Barn", "NYUIIBFj0iQ"],
+        [28, 8, "Deep Forest Falls", "urHQRbRNuYI"],
+        [28, 9, "Winter's Grace", "mxJ2On9wyvY"],
+        [28, 10, "Splendor of Autumn", "hEyR2FDp-00"],
+        [28, 11, "Tranquil Seas", "kN1DP_yqs-A"],
+        [28, 12, "Mountain Serenity", "wc_YVijYjT4"],
+        [28, 13, "Home Before Nightfall", "22SiIDvyJeM"],
+        [29, 1, "Island in the Wilderness", "lLWEXRAnQd0"],
+        [29, 2, "Autumn Oval", "2XnIdinwot0"],
+        [29, 3, "Seasonal Progression", "T2G5waMfQ-g"],
+        [29, 4, "Light at the Summit", "HOdS-G8p1KE"],
+        [29, 5, "Countryside Barn", "G7Etn7QMeO4"],
+        [29, 7, "Cypress Creek", "Tnb2cXKKuWM"],
+        [29, 8, "Trapper's Cabin", "chhCkmp0RG8"],
+        [29, 9, "Storm on the Horizon", "pA_2paUhBAQ"],
+        [29, 10, "Pot O' Posies", "2zv_S_uVoVQ"],
+        [29, 11, "A Perfect Winter Day", "Io4fwhacpEs"],
+        [29, 12, "Aurora's Dance", "iRMsb9Vf7GM"],
+        [29, 13, "Woodman's Retreat", "ODrV0dfQcNs"],
+        [30, 1, "Babbling Brook", "ZHUdS0wEaKk"],
+        [30, 2, "Woodgrain View", "fcx1yUuSf3o"],
+        [30, 3, "Winter's Peace", "Xzv3iiWi1Wo"],
+        [30, 4, "Wilderness Trail", "vGsW_6BCukU"],
+        [30, 5, "A Copper Winter", "BSjee-ond7w"],
+        [30, 6, "Misty Foothills", "LEz4UVL7POE"],
+        [30, 7, "Through the Window", "SrN4A9rVXj0"],
+        [30, 8, "Home in the Valley", "enutOy-nsZk"],
+        [30, 10, "Seaside Harmony", "CY6sGFs209E"],
+        [30, 11, "A Cold Spring Day", "jq8bIbpW7DQ"],
+        [30, 12, "Evening's Glow", "eTEKGOi6SVg"],
+        [30, 13, "Blue Ridge Falls", "fz0YjqtHW84"],
+        [31, 1, "Reflections of Calm", "kJFB6rH3z2A"],
+        [31, 2, "Before the Snowfall", "_MdMhQIOL1Y"],
+        [31, 3, "Winding Stream", "QDwd4pMYyuo"],
+        [31, 4, "Tranquility Cove", "7t6ue0pEcNE"],
+        [31, 5, "Cabin in the Hollow", "KYlM2zJnNWY"],
+        [31, 6, "View from Clear Creek", "TLX1bmS8wBE"],
+        [31, 7, "Bridge to Autumn", "ReENCTH7MYI"],
+        [31, 8, "Trail's End", "XWQrP-WiLgc"],
+        [31, 9, "Evergreen Valley", "mEU0stNfkxI"],
+        [31, 10, "Balmy Beach", "kMgd6r6c4vE"],
+        [31, 12, "In the Midst of Winter", "qx2IsmrCs3c"],
+        [31, 13, "Wilderness Way", "nJGCVFn57U8"],
+      ];
 
-        <div class="panel-icon pink"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
-        <div>
-          <div class="panel-title">Children's Storybooks</div>
-          <div class="panel-subtitle">Bedtime stories from Bob</div>
-        </div>
-      </div>
-    </div>
-    <div class="panel-body">
-      <div class="sb-book-grid" id="bookGrid"></div>
-    </div>
-  </div>
+      const thumb = (id, q = "mqdefault") =>
+        `https://i.ytimg.com/vi/${id}/${q}.jpg`;
+      const label = (ep) => `Season ${ep[0]}, Episode ${ep[1]}`;
+      const esc = (s) =>
+        s.replace(
+          /[&<>"]/g,
+          (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c],
+        );
+      // Glue the last two words so titles never end on an orphan
+      const noOrphan = (s) => s.replace(/ (\S+)$/, " $1");
 
-  <!-- MERCH -->
-  <div class="panel panel-merch reveal" data-delay="6">
-    <div class="panel-header">
-      <div class="panel-header-left">
+      // ============================================
+      // GREETING + TODAY'S EPISODE
+      // ============================================
+      (function hero() {
+        const h = new Date().getHours();
+        document.getElementById("greeting").textContent =
+          h < 12
+            ? "Good\u00A0morning"
+            : h < 17
+              ? "Good\u00A0afternoon"
+              : "Good\u00A0evening";
+        const day = Math.floor(
+          (Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 864e5,
+        );
+        const ep = EPISODES[(day * 37) % EPISODES.length];
+        const img = document.getElementById("todayImg");
+        img.src = thumb(ep[3], "maxresdefault");
+        img.alt = `Bob Ross at the easel painting ${ep[2]}`;
+        document.getElementById("todayTitle").textContent = `Today: ${ep[2]}`;
+        document.getElementById("todayMeta").textContent = label(ep);
+        document
+          .getElementById("todayBtn")
+          .addEventListener("click", () => openEpisode(ep));
+      })();
 
-        <div class="panel-icon blue"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></div>
-        <div>
-          <div class="panel-title">Bob Ross Merch</div>
-          <div class="panel-subtitle">Wear the joy</div>
-        </div>
-      </div>
-      <button class="panel-action">Shop All</button>
-    </div>
-    <div class="panel-body">
-      <div class="merch-scroll" id="merchScroll"></div>
-    </div>
-  </div>
+      // ============================================
+      // EPISODES
+      // ============================================
+      const PAGE = 12;
+      const seasons = [...new Set(EPISODES.map((e) => e[0]))];
+      let season = 0,
+        shown = 0;
+      document.getElementById("epCount").textContent = EPISODES.length;
 
-  <!-- QUOTE -->
-  <div class="panel panel-quote reveal" data-delay="7">
-    <p class="quote-text" id="quoteText">"I think there's an artist hidden at the bottom of every single one of us."</p>
-    <p class="quote-attr">— Bob Ross</p>
-  </div>
-
-</div>
-
-<!-- ===== STATUS BAR (OS Footer) ===== -->
-<div class="status-bar">
-  <div class="status-bar-left">
-    <span class="status-dot"></span>
-    <span>JoyOS v1.0</span>
-  </div>
-  <div class="status-bar-center" id="statusMsg">Ready to paint</div>
-  <div class="status-bar-right" id="statusClock"></div>
-</div>
-
-<!-- ===== VIDEO MODAL ===== -->
-<div class="video-modal" id="videoModal">
-  <button class="video-modal-close" onclick="closeVideo()">&times;</button>
-  <div class="video-modal-body" id="videoBody"></div>
-</div>
-
-<script>
-// ============================================
-// TIME
-// ============================================
-function updateTime() {
-  const d = new Date();
-  const h = d.getHours();
-  let greeting = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
-  document.getElementById('topbarTime').textContent =
-    d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
-  const hero = document.querySelector('.hero-greeting h1');
-  if (hero) hero.innerHTML = `${greeting}, friend. <em>Let's paint.</em>`;
-}
-updateTime();
-setInterval(updateTime, 60000);
-
-// ============================================
-// EPISODES
-// ============================================
-const IMG = 'https://www.twoinchbrush.com/images/previews/';
-const epData = [
-  // S1
-  {s:1,e:1,t:"A Walk in the Woods",img:"painting282"},{s:1,e:2,t:"Mt. McKinley",img:"painting283"},{s:1,e:3,t:"Ebony Sunset",img:"painting284"},
-  {s:1,e:4,t:"Winter Mist",img:"painting285"},{s:1,e:5,t:"Quiet Stream",img:"painting286"},{s:1,e:6,t:"Winter Moon",img:"painting287"},
-  {s:1,e:7,t:"Autumn Mountain",img:"painting288"},{s:1,e:8,t:"Peaceful Valley",img:"painting289"},{s:1,e:9,t:"Seascape",img:"painting290"},
-  {s:1,e:10,t:"Mountain Lake",img:"painting291"},{s:1,e:11,t:"Winter Glow",img:"painting292"},{s:1,e:12,t:"Snow Fall",img:"painting293"},
-  {s:1,e:13,t:"Final Reflections",img:"painting294"},
-  // S2
-  {s:2,e:1,t:"Meadow Lake",img:"painting269"},{s:2,e:2,t:"Winter Sun",img:"painting270"},{s:2,e:3,t:"Ebony Sea",img:"painting271"},
-  {s:2,e:4,t:"Shades of Grey",img:"painting272"},{s:2,e:5,t:"Autumn Splendor",img:"painting273"},{s:2,e:6,t:"Black River",img:"painting274"},
-  {s:2,e:7,t:"Brown Mountain",img:"painting275"},{s:2,e:8,t:"Reflections",img:"painting276"},{s:2,e:9,t:"Black and White Seascape",img:"painting277"},
-  {s:2,e:10,t:"Lazy River",img:"painting278"},{s:2,e:11,t:"Black Waterfall",img:"painting279"},{s:2,e:12,t:"Mountain Waterfall",img:"painting280"},
-  {s:2,e:13,t:"Final Grace",img:"painting281"},
-  // S3
-  {s:3,e:1,t:"Mountain Retreat",img:"painting256"},{s:3,e:2,t:"Blue Moon",img:"painting257"},{s:3,e:3,t:"Bubbling Stream",img:"painting258"},
-  {s:3,e:4,t:"Winter Night",img:"painting259"},{s:3,e:5,t:"Distant Hills",img:"painting260"},{s:3,e:6,t:"Covered Bridge",img:"painting261"},
-  {s:3,e:7,t:"Quiet Inlet",img:"painting262"},{s:3,e:8,t:"Night Light",img:"painting263"},{s:3,e:9,t:"The Old Mill",img:"painting264"},
-  {s:3,e:10,t:"Campfire",img:"painting265"},{s:3,e:11,t:"Rustic Barn",img:"painting266"},{s:3,e:12,t:"Hidden Lake",img:"painting267"},
-  {s:3,e:13,t:"Peaceful Waters",img:"painting268"},
-  // S4
-  {s:4,e:1,t:"Purple Splendor",img:"painting243"},{s:4,e:2,t:"Tranquil Valley",img:"painting244"},{s:4,e:3,t:"Majestic Mountains",img:"painting245"},
-  {s:4,e:4,t:"Winter Sawscape",img:"painting246"},{s:4,e:5,t:"Evening Seascape",img:"painting247"},{s:4,e:6,t:"Warm Summer Day",img:"painting248"},
-  {s:4,e:7,t:"Cabin in the Woods",img:"painting249"},{s:4,e:8,t:"Wetlands",img:"painting250"},{s:4,e:9,t:"Cool Waters",img:"painting251"},
-  {s:4,e:10,t:"Quiet Woods",img:"painting252"},{s:4,e:11,t:"Northwest Majesty",img:"painting253"},{s:4,e:12,t:"Autumn Days",img:"painting254"},
-  {s:4,e:13,t:"Mountain Challenge",img:"painting255"},
-  // S5
-  {s:5,e:1,t:"Mountain Waterfall",img:"painting230"},{s:5,e:2,t:"Twilight Meadow",img:"painting231"},{s:5,e:3,t:"Mountain Blossoms",img:"painting232"},
-  {s:5,e:4,t:"Winter Stillness",img:"painting233"},{s:5,e:5,t:"Quiet Pond",img:"painting234"},{s:5,e:6,t:"Ocean Sunrise",img:"painting235"},
-  {s:5,e:7,t:"Bubbling Brook",img:"painting236"},{s:5,e:8,t:"Arizona Splendor",img:"painting237"},{s:5,e:9,t:"Anatomy of a Wave",img:"painting238"},
-  {s:5,e:10,t:"The Windmill",img:"painting239"},{s:5,e:11,t:"Autumn Glory",img:"painting240"},{s:5,e:12,t:"Indian Girl",img:"painting241"},
-  {s:5,e:13,t:"Meadow Stream",img:"painting242"},
-  // S6
-  {s:6,e:1,t:"Blue River",img:"painting217"},{s:6,e:2,t:"Nature's Edge",img:"painting218"},{s:6,e:3,t:"Morning Mist",img:"painting219"},
-  {s:6,e:4,t:"Whispering Stream",img:"painting220"},{s:6,e:5,t:"Secluded Forest",img:"painting221"},{s:6,e:6,t:"Snow Trail",img:"painting222"},
-  {s:6,e:7,t:"Arctic Beauty",img:"painting223"},
-  // S8 (partial)
-  {s:8,e:6,t:"Bubbling Mountain Brook",img:"painting195"},{s:8,e:7,t:"Winter Hideaway",img:"painting196"},{s:8,e:8,t:"Foot of the Mountain",img:"painting197"},
-  {s:8,e:9,t:"Majestic Pine",img:"painting198"},{s:8,e:10,t:"Cactus at Sunset",img:"painting199"},{s:8,e:11,t:"Mountain Range",img:"painting200"},
-  {s:8,e:12,t:"Lonely Retreat",img:"painting201"},{s:8,e:13,t:"Northern Lights",img:"painting202"},
-  // S9
-  {s:9,e:1,t:"Winter Evergreens",img:"painting177"},{s:9,e:2,t:"Surf's Up",img:"painting178"},{s:9,e:3,t:"Red Sunset",img:"painting179"},
-  {s:9,e:4,t:"Meadow Road",img:"painting180"},{s:9,e:5,t:"Winter Oval",img:"painting181"},{s:9,e:6,t:"Secluded Beach",img:"painting182"},
-  {s:9,e:7,t:"Forest Hills",img:"painting183"},{s:9,e:8,t:"Little House by the Road",img:"painting184"},{s:9,e:9,t:"Mountain Path",img:"painting185"},
-  {s:9,e:10,t:"Country Charm",img:"painting186"},{s:9,e:11,t:"Nature's Paradise",img:"painting187"},{s:9,e:12,t:"Mountain by the Sea",img:"painting188"},
-  {s:9,e:13,t:"Mountain Hideaway",img:"painting189"},
-  // S10
-  {s:10,e:1,t:"Towering Peaks",img:"painting163"},{s:10,e:2,t:"Cabin at Sunset",img:"painting164"},{s:10,e:3,t:"Twin Falls",img:"painting165"},
-];
-
-let curSeason = 0, epShown = 0;
-const EP_PAGE = 8;
-const availableSeasons = [...new Set(epData.map(e => e.s))].sort((a,b) => a-b);
-
-function initEpPills() {
-  let html = '<span class="ep-pill active" onclick="setSeason(0,this)">All</span>';
-  availableSeasons.forEach(s => { html += `<span class="ep-pill" onclick="setSeason(${s},this)">S${s}</span>`; });
-  document.getElementById('seasonPills').innerHTML = html;
-}
-
-function getEps() {
-  return curSeason === 0 ? epData : epData.filter(ep => ep.s === curSeason);
-}
-
-function setSeason(s, el) {
-  document.querySelectorAll('.ep-pill').forEach(p => p.classList.remove('active'));
-  el.classList.add('active');
-  curSeason = s;
-  epShown = 0;
-  renderEps();
-}
-
-function renderEps() {
-  const eps = getEps();
-  epShown = Math.min(epShown + EP_PAGE, eps.length);
-  const grid = document.getElementById('epGrid');
-  let html = '';
-  for (let i = 0; i < epShown; i++) {
-    const ep = eps[i];
-    html += `<div class="ep-card" onclick="playEp(${ep.s},${ep.e},'${ep.t.replace(/'/g,"\\'")}')">
-      <div class="ep-thumb" style="background:url('${IMG}${ep.img}.webp') center/cover">
-        <div class="ep-thumb-overlay"><div class="ep-play-icon"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></div></div>
-      </div>
-      <div class="ep-meta">
-        <div class="ep-meta-label">S${ep.s} E${ep.e}</div>
-        <div class="ep-meta-title">${ep.t}</div>
-      </div>
-    </div>`;
-  }
-  grid.innerHTML = html;
-  document.getElementById('epLoadMore').style.display = epShown >= eps.length ? 'none' : 'block';
-}
-
-function loadMore() { renderEps(); }
-
-function playEp(s, e, title) {
-  if (!title) { const ep = epData.find(d => d.s===s && d.e===e); title = ep ? ep.t : 'Episode'; }
-  const q = encodeURIComponent(`Bob Ross Season ${s} Episode ${e} ${title}`);
-  document.getElementById('videoBody').innerHTML = `
-    <div style="width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#F7F1E6;padding:32px;text-align:center;font-family:Inter,sans-serif">
-      <div style="margin-bottom:12px"><svg viewBox="0 0 48 48" width="48" height="48" fill="none" stroke="#6A9FCA" stroke-width="1.5"><ellipse cx="24" cy="26" rx="18" ry="14"/><circle cx="14" cy="22" r="3"/><circle cx="26" cy="20" r="3"/><circle cx="32" cy="28" r="3"/><circle cx="18" cy="30" r="2.5"/></svg></div>
-      <h3 style="font-family:'Playfair Display',serif;font-size:1.2rem;color:#3B2F2F;margin-bottom:4px">Season ${s}, Episode ${e}</h3>
-      <p style="font-family:'Playfair Display',serif;font-style:italic;color:#6A9FCA;margin-bottom:20px;font-size:1.1rem">"${title}"</p>
-      <a href="https://www.youtube.com/results?search_query=${q}" target="_blank" rel="noopener"
-         style="padding:12px 28px;background:#6A9FCA;color:white;text-decoration:none;border-radius:24px;font-weight:600;font-size:0.85rem;letter-spacing:0.5px">Watch on YouTube</a>
-      <p style="margin-top:12px;font-size:0.75rem;color:#9A8E80">Full episodes on the official Bob Ross YouTube channel</p>
-    </div>`;
-  document.getElementById('videoModal').classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
-
-function closeVideo() {
-  document.getElementById('videoModal').classList.remove('open');
-  document.getElementById('videoBody').innerHTML = '';
-  document.body.style.overflow = '';
-}
-
-// ============================================
-// SOUNDBOARD
-// ============================================
-let audioCtx = null;
-const activeSounds = {};
-let masterVol = 0.7;
-
-function getCtx() {
-  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  return audioCtx;
-}
-
-const soundPads = [
-  { id:'brush-gentle', icon:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M18 2l-4 4-2 8 4-2 4-4-2-6z"/><path d="M12 14c-4 3-8 6-9 7 2 0 5-1 9-5"/></svg>', label:'Gentle Strokes', cls:'brush' },
-  { id:'brush-scrub', icon:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1"/></svg>', label:'Scrubbing', cls:'brush' },
-  { id:'brush-flick', icon:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M12 3v5M8 5l2 4M16 5l-2 4M6 9l3 3M18 9l-3 3M12 16v5"/></svg>', label:'Flicks', cls:'brush' },
-  { id:'brush-tap', icon:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M12 3v4M12 11v2M12 17v4M8 7h8M9 15h6"/></svg>', label:'Tap Tap', cls:'brush' },
-  { id:'brush-fan', icon:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M12 20V12M12 12C8 6 4 4 2 6M12 12C12 6 10 2 8 2M12 12C12 6 14 2 16 2M12 12C16 6 20 4 22 6"/></svg>', label:'Fan Brush', cls:'brush' },
-  { id:'knife-mix', icon:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M20 4L10 14"/><path d="M10 14l-6 6"/><path d="M20 4c-2 0-6 2-10 6l2 2c4-4 6-8 6-10"/></svg>', label:'Mixing', cls:'scraper' },
-  { id:'knife-scrape', icon:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 18l7-14 7 14"/><path d="M6 16h12"/><line x1="11" y1="4" x2="11" y2="16"/></svg>', label:'Mountain Pull', cls:'scraper' },
-  { id:'brush-beat', icon:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M2 12c2-3 4-3 6 0s4 3 6 0 4-3 6 0"/><path d="M2 17c2-3 4-3 6 0s4 3 6 0 4-3 6 0"/><path d="M2 7c2-3 4-3 6 0s4 3 6 0 4-3 6 0"/></svg>', label:'Beat the Devil', cls:'prep' },
-  { id:'paint-swirl', icon:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M12 22c-4 0-8-3-8-8 0-3 2-5 4-5s4 2 4 4c0 1.5-1 3-2 3s-2-.5-2-2"/></svg>', label:'Thinner Swirl', cls:'paint' },
-  { id:'liquid-white', icon:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M12 3c-2 4-6 7-6 11a6 6 0 0 0 12 0c0-4-4-7-6-11z"/></svg>', label:'Liquid White', cls:'prep' },
-  { id:'palette-scrape', icon:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><ellipse cx="12" cy="13" rx="9" ry="8"/><circle cx="8" cy="10" r="1.5"/><circle cx="14" cy="9" r="1.5"/><circle cx="16" cy="13" r="1.5"/><circle cx="10" cy="15" r="1.5"/></svg>', label:'Palette Scrape', cls:'paint' },
-  { id:'canvas-texture', icon:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg>', label:'Canvas', cls:'paint' },
-];
-
-function initSB() {
-  document.getElementById('sbGrid').innerHTML = soundPads.map(p =>
-    `<div class="sb-pad ${p.cls}" onclick="toggleSnd(this,'${p.id}')" data-sound="${p.id}">
-      <div class="icon">${p.icon}</div>
-      <div class="label">${p.label}</div>
-      <div class="wave-dots"><span></span><span></span><span></span><span></span><span></span></div>
-    </div>`
-  ).join('');
-}
-
-function makeBuf(type) {
-  const ctx = getCtx(), sr = ctx.sampleRate, dur = 4, len = sr * dur;
-  const buf = ctx.createBuffer(2, len, sr);
-  for (let ch = 0; ch < 2; ch++) {
-    const d = buf.getChannelData(ch);
-    for (let i = 0; i < len; i++) {
-      const t = i / sr, n = Math.random() * 2 - 1, prev = i > 0 ? d[i-1] : 0;
-      switch(type) {
-        case 'brush-gentle': d[i] = prev * 0.95 + n * 0.05 * Math.sin(Math.PI * t / dur) * 0.4; break;
-        case 'brush-scrub': d[i] = prev * 0.9 + n * 0.1 * (Math.abs(Math.sin(t * 3)) * 0.6 + 0.2); break;
-        case 'brush-flick': d[i] = n * Math.exp(-((t % 0.5) * 20)) * 0.5; break;
-        case 'brush-tap': d[i] = prev * 0.7 + n * 0.3 * Math.exp(-((t % 0.3) * 40)) * 0.4; break;
-        case 'brush-fan': d[i] = prev * 0.93 + n * 0.07 * (Math.sin(t * 1.5) * 0.3 + 0.4); break;
-        case 'knife-mix': { const env = Math.sin(Math.PI * t * 2 / dur) * 0.3; d[i] = prev * 0.85 + (n * 0.15 + Math.sin(t * 800 + Math.sin(t*3)*200)*0.02) * env; break; }
-        case 'knife-scrape': d[i] = prev * 0.88 + n * 0.12 * Math.abs(Math.sin(t * 1.2)) * 0.4 + (Math.random()>0.97?(Math.random()-0.5)*0.3:0); break;
-        case 'brush-beat': { const beat = Math.exp(-((t%0.25)*30))*0.6; d[i] = n*beat + Math.sin(t*400)*Math.exp(-((t%0.25)*15))*0.1; break; }
-        case 'paint-swirl': { const sw = Math.sin(t*6)*0.3+0.4; d[i] = prev*0.96 + n*0.04*sw + (Math.random()>0.99?Math.random()*0.15:0); break; }
-        case 'liquid-white': d[i] = prev * 0.97 + n * 0.03 * Math.sin(Math.PI * t / dur) * 0.25; break;
-        case 'palette-scrape': d[i] = prev * 0.87 + n * 0.13 * (Math.sin(t*2.5)*0.5+0.5)*0.35; break;
-        case 'canvas-texture': d[i] = prev * 0.91 + (n*0.09 + Math.sin(t*60)*0.01) * Math.sin(Math.PI*t/dur)*0.3; break;
-        default: d[i] = prev * 0.95 + n * 0.05 * 0.3;
+      function renderSeasonBar() {
+        document.getElementById("seasonBar").innerHTML = [0, ...seasons]
+          .map(
+            (s) =>
+              `<button class="chip" data-season="${s}" aria-pressed="${s === season}">${s ? "Season " + s : "All seasons"}</button>`,
+          )
+          .join("");
       }
-    }
-  }
-  return buf;
-}
-
-function toggleSnd(el, type) {
-  const ctx = getCtx();
-  if (ctx.state === 'suspended') ctx.resume();
-  if (activeSounds[type]) {
-    activeSounds[type].gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.3);
-    setTimeout(() => { if(activeSounds[type]){activeSounds[type].source.stop(); delete activeSounds[type];} }, 350);
-    el.classList.remove('playing');
-    return;
-  }
-  const buf = makeBuf(type), src = ctx.createBufferSource(), gain = ctx.createGain();
-  src.buffer = buf; src.loop = true; gain.gain.value = masterVol;
-  src.connect(gain); gain.connect(ctx.destination); src.start();
-  activeSounds[type] = { source: src, gain };
-  el.classList.add('playing');
-}
-
-function setMasterVol(v) {
-  masterVol = v / 100;
-  Object.values(activeSounds).forEach(s => { s.gain.gain.value = masterVol; });
-}
-
-function stopAll() {
-  const ctx = getCtx();
-  Object.keys(activeSounds).forEach(k => {
-    activeSounds[k].gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.3);
-    setTimeout(() => { if(activeSounds[k]){activeSounds[k].source.stop(); delete activeSounds[k];} }, 350);
-  });
-  document.querySelectorAll('.sb-pad').forEach(p => p.classList.remove('playing'));
-}
-
-// ============================================
-// RADIO
-// ============================================
-const tracks = [
-  { title:"Interlude in B-Flat", artist:"Larry Owens", dur:"3:42" },
-  { title:"Gentle Breeze", artist:"Joy of Painting OST", dur:"4:15" },
-  { title:"Cabin Morning", artist:"Larry Owens", dur:"3:58" },
-  { title:"Mountain Serenade", artist:"Joy of Painting OST", dur:"4:30" },
-  { title:"Quiet Brook", artist:"Larry Owens", dur:"3:22" },
-  { title:"Evening Reflection", artist:"Joy of Painting OST", dur:"5:01" },
-  { title:"Happy Clouds", artist:"Larry Owens", dur:"3:47" },
-  { title:"Autumn Nocturne", artist:"Joy of Painting OST", dur:"4:12" },
-  { title:"Palette Dreams", artist:"Larry Owens", dur:"3:35" },
-  { title:"Winter Solitude", artist:"Joy of Painting OST", dur:"4:48" },
-  { title:"Brushwork Waltz", artist:"Larry Owens", dur:"3:56" },
-  { title:"Sunset on the Lake", artist:"Joy of Painting OST", dur:"4:22" },
-];
-
-let curTrack = 0, playing = false, rCtx = null, rSrc = null, rGain = null, rInt = null, rProg = 0;
-
-function initRadio() {
-  document.getElementById('rList').innerHTML = tracks.map((t,i) =>
-    `<div class="radio-item${i===0?' active':''}" onclick="pickTrack(${i})">
-      <span class="num">${i+1}</span><span class="name">${t.title}</span><span class="dur">${t.dur}</span>
-    </div>`
-  ).join('');
-}
-
-function pickTrack(i) { curTrack = i; updateRadioUI(); if(playing){stopRadio();playRadio();} }
-
-function toggleRadio() {
-  if(playing){stopRadio();playing=false;} else{playRadio();playing=true;}
-  updateRadioUI();
-}
-
-function playRadio() {
-  if(!rCtx) rCtx = new (window.AudioContext||window.webkitAudioContext)();
-  if(rCtx.state==='suspended') rCtx.resume();
-  const ctx = rCtx, sr = ctx.sampleRate, dur = 30, len = sr*dur;
-  const buf = ctx.createBuffer(2, len, sr);
-  const chords = [[261.6,329.6,392,466.2],[293.7,370,440,523.3],[349.2,440,523.3,622.3],[392,493.9,587.3,698.5]][curTrack%4];
-  for(let ch=0;ch<2;ch++){
-    const d = buf.getChannelData(ch), sh = ch*0.5;
-    for(let i=0;i<len;i++){
-      const t=i/sr; let s=0;
-      chords.forEach((f,idx)=>{
-        const ff = f*(ch===0?1.001:0.999)+Math.sin(t*4+idx)*2;
-        s += Math.sin(2*Math.PI*ff*t+sh)*0.04 + Math.sin(2*Math.PI*ff*2*t)*0.01;
+      document.getElementById("seasonBar").addEventListener("click", (e) => {
+        const b = e.target.closest("[data-season]");
+        if (!b) return;
+        season = +b.dataset.season;
+        shown = 0;
+        document
+          .querySelectorAll("#seasonBar .chip")
+          .forEach((c) => c.setAttribute("aria-pressed", c === b));
+        document.getElementById("epGrid").innerHTML = "";
+        renderEpisodes();
       });
-      s *= Math.sin(Math.PI*((t%8)/8))*0.6+0.4;
-      s += Math.sin(2*Math.PI*(chords[0]/2)*t)*0.06;
-      d[i] = (d[i]||0) + s * Math.min(t/2,1,(dur-t)/2) * 0.5;
-    }
-  }
-  rSrc = ctx.createBufferSource(); rSrc.buffer = buf; rSrc.loop = true;
-  rGain = ctx.createGain(); rGain.gain.value = 0.8;
-  rSrc.connect(rGain); rGain.connect(ctx.destination); rSrc.start();
-  rProg = 0;
-  rInt = setInterval(()=>{
-    rProg += 0.5;
-    if(rProg>=100){rProg=0;nextTrack();}
-    document.getElementById('rProgress').style.width = rProg+'%';
-  }, 150);
-}
 
-function stopRadio() {
-  if(rSrc){rSrc.stop();rSrc=null;}
-  if(rInt){clearInterval(rInt);rInt=null;}
-}
+      function epList() {
+        return season ? EPISODES.filter((e) => e[0] === season) : EPISODES;
+      }
 
-function nextTrack() { curTrack=(curTrack+1)%tracks.length; updateRadioUI(); if(playing){stopRadio();playRadio();} }
-function prevTrack() { curTrack=(curTrack-1+tracks.length)%tracks.length; updateRadioUI(); if(playing){stopRadio();playRadio();} }
-
-function updateRadioUI() {
-  document.getElementById('rTrackName').textContent = tracks[curTrack].title;
-  document.getElementById('rTrackArtist').textContent = tracks[curTrack].artist;
-  const disc = document.getElementById('vinylDisc');
-  const icon = document.getElementById('rPlayIcon');
-  if(playing){disc.classList.add('spinning'); icon.innerHTML='<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';}
-  else{disc.classList.remove('spinning'); icon.innerHTML='<polygon points="5,3 19,12 5,21"/>';}
-  document.querySelectorAll('.radio-item').forEach((el,i)=>el.classList.toggle('active',i===curTrack));
-}
-
-// ============================================
-// WALLPAPERS
-// ============================================
-const wallpapers = [
-  {name:"A Walk in the Woods",season:"S1E1",cat:"cabin",img:"painting282"},
-  {name:"Mt. McKinley",season:"S1E2",cat:"mountain",img:"painting283"},
-  {name:"Ebony Sunset",season:"S1E3",cat:"ocean",img:"painting284"},
-  {name:"Winter Mist",season:"S1E4",cat:"winter",img:"painting285"},
-  {name:"Quiet Stream",season:"S1E5",cat:"cabin",img:"painting286"},
-  {name:"Winter Moon",season:"S1E6",cat:"winter",img:"painting287"},
-  {name:"Seascape",season:"S1E9",cat:"ocean",img:"painting290"},
-  {name:"Mountain Lake",season:"S1E10",cat:"mountain",img:"painting291"},
-  {name:"Blue Moon",season:"S3E2",cat:"winter",img:"painting257"},
-  {name:"Covered Bridge",season:"S3E6",cat:"cabin",img:"painting261"},
-  {name:"Campfire",season:"S3E10",cat:"cabin",img:"painting265"},
-  {name:"Purple Splendor",season:"S4E1",cat:"mountain",img:"painting243"},
-  {name:"Majestic Mountains",season:"S4E3",cat:"mountain",img:"painting245"},
-  {name:"Cabin in the Woods",season:"S4E7",cat:"cabin",img:"painting249"},
-  {name:"Ocean Sunrise",season:"S5E6",cat:"ocean",img:"painting235"},
-  {name:"Arizona Splendor",season:"S5E8",cat:"mountain",img:"painting237"},
-  {name:"Cactus at Sunset",season:"S8E10",cat:"ocean",img:"painting199"},
-  {name:"Northern Lights",season:"S8E13",cat:"winter",img:"painting202"},
-  {name:"Red Sunset",season:"S9E3",cat:"ocean",img:"painting179"},
-  {name:"Country Charm",season:"S9E10",cat:"cabin",img:"painting186"},
-];
-
-let wpFilter = 'all';
-
-function initWP() {
-  const cats = ['all','mountain','cabin','ocean','winter'];
-  document.getElementById('wpTabs').innerHTML = cats.map(c =>
-    `<button class="wp-tab${c==='all'?' active':''}" onclick="filterWP('${c}',this)">${c==='all'?'All':c[0].toUpperCase()+c.slice(1)}</button>`
-  ).join('');
-  renderWP();
-}
-
-function filterWP(cat, btn) {
-  wpFilter = cat;
-  document.querySelectorAll('.wp-tab').forEach(t=>t.classList.remove('active'));
-  btn.classList.add('active');
-  renderWP();
-}
-
-function renderWP() {
-  const filtered = wpFilter==='all' ? wallpapers.slice(0,8) : wallpapers.filter(w=>w.cat===wpFilter).slice(0,8);
-  document.getElementById('wpGrid').innerHTML = filtered.map(w =>
-    `<div class="wp-card" style="background:url('${IMG}${w.img}.webp') center/cover">
-      <div class="wp-overlay">
-        <div class="name">${w.name}</div>
-        <div class="season">${w.season}</div>
-        <button class="wp-dl"><svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg> Download</button>
-      </div>
-    </div>`
-  ).join('');
-}
-
-// ============================================
-// STORYBOOKS
-// ============================================
-const books = [
-  { title:"The Happy Little Tree Who Found a Friend", desc:"A lonely little tree discovers that friendship grows when you're open to it.", age:"Ages 3–6", cover:'<svg viewBox="0 0 32 40" width="32" height="40" fill="none" stroke="#5A8F4E" stroke-width="2"><path d="M16 4l-10 16h6l-4 12h16l-4-12h6z"/><line x1="16" y1="32" x2="16" y2="38"/></svg>', bg:"#E8F0E5" },
-  { title:"Bob's Mountain Adventure", desc:"Join Bob as he paints his way up a magical mountain, discovering courage along the way.", age:"Ages 4–7", cover:'<svg viewBox="0 0 32 40" width="32" height="40" fill="none" stroke="#4A7FA8" stroke-width="2"><path d="M4 34l10-24 6 12 4-8 8 20"/><path d="M10 20l3-2 3 2" opacity="0.5"/></svg>', bg:"#E8F1F8" },
-  { title:"The Brave Little Brush", desc:"A small brush learns that even the littlest strokes can make the biggest difference.", age:"Ages 3–5", cover:'<svg viewBox="0 0 32 40" width="32" height="40" fill="none" stroke="#D4943A" stroke-width="2"><path d="M20 4l-4 4-2 10 5-2 4-5z"/><path d="M14 18c-4 4-8 8-9 10 2 0 5-2 9-6"/></svg>', bg:"#FBF3DC" },
-  { title:"No Mistakes, Only Clouds", desc:"When things don't go as planned, a gentle voice reminds us: every mistake is a happy accident.", age:"Ages 4–8", cover:'<svg viewBox="0 0 32 40" width="32" height="40" fill="none" stroke="#9A8E80" stroke-width="2"><path d="M8 26a6 6 0 0 1 0-12 8 8 0 0 1 16 0 6 6 0 0 1 0 12z"/></svg>', bg:"#F3EDE6" },
-  { title:"Goodnight, Happy Trees", desc:"A soothing bedtime story as Bob paints a peaceful night scene, one gentle brushstroke at a time.", age:"Ages 2–5", cover:'<svg viewBox="0 0 32 40" width="32" height="40" fill="none" stroke="#6A5A8E" stroke-width="2"><path d="M20 10a8 8 0 1 0-8 8"/><circle cx="12" cy="18" r="1" fill="#6A5A8E"/><circle cx="16" cy="22" r="0.8" fill="#6A5A8E"/></svg>', bg:"#E8E4F0" },
-  { title:"The Colors of Kindness", desc:"Each paint color teaches a different lesson about being kind, patient, and brave.", age:"Ages 3–6", cover:'<svg viewBox="0 0 32 40" width="32" height="40" fill="none" stroke-width="2"><circle cx="12" cy="14" r="4" stroke="#A03030"/><circle cx="20" cy="14" r="4" stroke="#4A7FA8"/><circle cx="16" cy="21" r="4" stroke="#E2A928"/></svg>', bg:"#FAE8E8" },
-];
-
-function initBooks() {
-  document.getElementById('bookGrid').innerHTML = books.map(b =>
-    `<div class="sb-book">
-      <div class="sb-book-cover" style="background:${b.bg}">${b.cover}</div>
-      <div class="sb-book-info">
-        <div class="sb-book-title">${b.title}</div>
-        <div class="sb-book-desc">${b.desc}</div>
-        <div class="sb-book-age">${b.age}</div>
-      </div>
-    </div>`
-  ).join('');
-}
-
-// ============================================
-// MERCH
-// ============================================
-const merch = [
-  {name:'"Happy Little Trees" Tee',cat:'Apparel',price:'$29.99',icon:'<svg viewBox="0 0 48 48" width="48" height="48" fill="none" stroke="#6B5E52" stroke-width="1.5"><path d="M12 8h24l-4 10h4L24 40 12 18h4z"/></svg>',badge:'bestseller',bc:'bestseller'},
-  {name:'Bob Ross Painting Set',cat:'Art Supplies',price:'$89.99',icon:'<svg viewBox="0 0 48 48" width="48" height="48" fill="none" stroke="#6B5E52" stroke-width="1.5"><ellipse cx="24" cy="26" rx="18" ry="14"/><circle cx="14" cy="22" r="3"/><circle cx="26" cy="20" r="3"/><circle cx="32" cy="28" r="3"/><circle cx="18" cy="30" r="2.5"/></svg>',badge:'bestseller',bc:'bestseller'},
-  {name:'"Beat the Devil" Mug',cat:'Drinkware',price:'$16.99',icon:'<svg viewBox="0 0 48 48" width="48" height="48" fill="none" stroke="#6B5E52" stroke-width="1.5"><path d="M12 14h18v20a4 4 0 0 1-4 4H16a4 4 0 0 1-4-4V14z"/><path d="M30 18h4a4 4 0 0 1 0 8h-4"/><path d="M18 8c0-2 2-2 2 0M22 6c0-2 2-2 2 0M26 8c0-2 2-2 2 0"/></svg>',badge:null,bc:null},
-  {name:'Bob Ross Chia Pet',cat:'Collectibles',price:'$24.99',icon:'<svg viewBox="0 0 48 48" width="48" height="48" fill="none" stroke="#6B5E52" stroke-width="1.5"><path d="M20 38h8"/><path d="M16 38c0-6 2-8 2-14a6 6 0 0 1 12 0c0 6 2 8 2 14"/><path d="M18 18c-2-4 0-8 6-10 6 2 8 6 6 10"/><path d="M21 14c-1-3 1-5 3-5s4 2 3 5"/></svg>',badge:'new',bc:'new'},
-  {name:'Joy of Painting Hoodie',cat:'Apparel',price:'$54.99',icon:'<svg viewBox="0 0 48 48" width="48" height="48" fill="none" stroke="#6B5E52" stroke-width="1.5"><path d="M14 8l-6 8v6h6v18h24V22h6v-6l-6-8h-6l-4 4-4-4z"/></svg>',badge:null,bc:null},
-  {name:'Happy Accidents Socks',cat:'Apparel',price:'$14.99',icon:'<svg viewBox="0 0 48 48" width="48" height="48" fill="none" stroke="#6B5E52" stroke-width="1.5"><path d="M16 6v24l-4 6c-2 3 0 6 4 6h10c4 0 6-3 4-6l-4-6V6"/><path d="M16 18h10M16 24h10"/></svg>',badge:null,bc:null},
-  {name:'Bob Ross Bobblehead',cat:'Collectibles',price:'$19.99',icon:'<svg viewBox="0 0 48 48" width="48" height="48" fill="none" stroke="#6B5E52" stroke-width="1.5"><circle cx="24" cy="14" r="8"/><path d="M24 22v2"/><path d="M16 28h16v12H16z" rx="2"/><path d="M18 8c-2-4 2-6 6-6s8 2 6 6"/></svg>',badge:'limited',bc:'limited'},
-  {name:'Palette Knife Set',cat:'Art Supplies',price:'$34.99',icon:'<svg viewBox="0 0 48 48" width="48" height="48" fill="none" stroke="#6B5E52" stroke-width="1.5"><path d="M36 8L16 24l-4 8 8-4z"/><path d="M12 32l-4 8h8z"/></svg>',badge:null,bc:null},
-  {name:'"No Mistakes" Poster',cat:'Wall Art',price:'$22.99',icon:'<svg viewBox="0 0 48 48" width="48" height="48" fill="none" stroke="#6B5E52" stroke-width="1.5"><rect x="8" y="6" width="32" height="36" rx="2"/><line x1="14" y1="14" x2="34" y2="14"/><line x1="14" y1="20" x2="34" y2="20"/><line x1="14" y1="26" x2="26" y2="26"/></svg>',badge:null,bc:null},
-  {name:'Bob Ross Apron',cat:'Apparel',price:'$27.99',icon:'<svg viewBox="0 0 48 48" width="48" height="48" fill="none" stroke="#6B5E52" stroke-width="1.5"><path d="M14 12h20v28H14z"/><path d="M14 12l-6 4v6l6-2"/><path d="M34 12l6 4v6l-6-2"/><path d="M20 12v-4h8v4"/><path d="M18 24h12v8H18z"/></svg>',badge:'new',bc:'new'},
-  {name:'Liquid White Medium',cat:'Art Supplies',price:'$12.99',icon:'<svg viewBox="0 0 48 48" width="48" height="48" fill="none" stroke="#6B5E52" stroke-width="1.5"><path d="M16 14h16v24a4 4 0 0 1-4 4h-8a4 4 0 0 1-4-4V14z"/><rect x="14" y="8" width="20" height="6" rx="1"/><path d="M20 22c0 4 8 4 8 0"/></svg>',badge:null,bc:null},
-  {name:'"Happy Trees" Enamel Pin',cat:'Accessories',price:'$9.99',icon:'<svg viewBox="0 0 48 48" width="48" height="48" fill="none" stroke="#6B5E52" stroke-width="1.5"><circle cx="24" cy="20" r="12"/><path d="M24 32v10"/><path d="M20 16l4-4 4 4-4 4z"/></svg>',badge:null,bc:null},
-];
-
-function initMerch() {
-  document.getElementById('merchScroll').innerHTML = merch.map(m =>
-    `<div class="merch-item">
-      <div class="merch-img">${m.badge?`<div class="merch-badge ${m.bc}">${m.badge}</div>`:''}${m.icon}</div>
-      <div class="merch-meta">
-        <div class="merch-cat">${m.cat}</div>
-        <div class="merch-name">${m.name}</div>
-        <div class="merch-price">${m.price}</div>
-        <button class="merch-btn">Add to Cart</button>
-      </div>
-    </div>`
-  ).join('');
-}
-
-// ============================================
-// QUOTES ROTATION
-// ============================================
-const quotes = [
-  "I think there's an artist hidden at the bottom of every single one of us.",
-  "Talent is a pursued interest. Anything that you're willing to practice, you can do.",
-  "There's nothing wrong with having a tree as a friend.",
-  "We don't make mistakes, just happy little accidents.",
-  "Let's build a happy little cloud. Let's build some happy little trees.",
-  "In painting, you have unlimited power. You have the ability to move mountains.",
-  "Just let go — and fall like a little waterfall.",
-  "However you think it should be, that's exactly how it should be.",
-  "The secret to doing anything is believing that you can do it.",
-  "Every day is a good day when you paint.",
-];
-
-let quoteIdx = 0;
-// Quote rotation handled by rotateQuoteAnimated in the animations section
-
-// Reveal system is CSS-only (keyframe animations with stagger delays)
-
-// ============================================
-// RADIO PLAY BUTTON GLOW STATE
-// ============================================
-const origUpdateRadioUI = updateRadioUI;
-updateRadioUI = function() {
-  origUpdateRadioUI();
-  const playBtn = document.getElementById('rPlayBtn');
-  if (playBtn) playBtn.classList.toggle('is-playing', playing);
-};
-
-// ESC closes modal
-document.addEventListener('keydown', e => { if(e.key === 'Escape') closeVideo(); });
-
-// ============================================
-// QUOTE CROSSFADE ANIMATION
-// ============================================
-function rotateQuoteAnimated() {
-  const el = document.getElementById('quoteText');
-  if (!el) return;
-  el.style.transition = 'opacity 0.5s ease, transform 0.5s ease, filter 0.5s ease';
-  el.style.opacity = '0';
-  el.style.transform = 'translateY(-10px)';
-  el.style.filter = 'blur(4px)';
-  setTimeout(() => {
-    quoteIdx = (quoteIdx + 1) % quotes.length;
-    el.textContent = `"${quotes[quoteIdx]}"`;
-    el.style.transform = 'translateY(10px)';
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        el.style.opacity = '1';
-        el.style.transform = 'translateY(0)';
-        el.style.filter = 'blur(0px)';
+      function renderEpisodes() {
+        const list = epList();
+        const next = list.slice(shown, shown + PAGE);
+        document.getElementById("epGrid").insertAdjacentHTML(
+          "beforeend",
+          next
+            .map(
+              (ep) => `
+    <button class="ep-card" data-id="${ep[3]}">
+      <div class="ep-thumb"><img src="${thumb(ep[3])}" alt="" loading="lazy" width="320" height="180"><span class="play-badge">Watch</span></div>
+      <div class="ep-meta"><div class="ep-label">${label(ep)}</div><div class="ep-title">${esc(noOrphan(ep[2]))}</div></div>
+    </button>`,
+            )
+            .join(""),
+        );
+        shown += next.length;
+        document.getElementById("epMore").style.display =
+          shown >= list.length ? "none" : "";
+      }
+      document.getElementById("epGrid").addEventListener("click", (e) => {
+        const c = e.target.closest(".ep-card");
+        if (c) openEpisode(EPISODES.find((ep) => ep[3] === c.dataset.id));
       });
-    });
-  }, 500);
-}
-setInterval(rotateQuoteAnimated, 12000);
+      document
+        .getElementById("epMore")
+        .addEventListener("click", renderEpisodes);
 
-// ============================================
-// INIT
-// ============================================
-initEpPills();
-renderEps();
-initSB();
-initRadio();
-initWP();
-initBooks();
-initMerch();
+      // ============================================
+      // VIDEO MODAL
+      // ============================================
+      const modal = document.getElementById("videoModal");
+      function openEpisode(ep) {
+        radioPause();
+        document.getElementById("videoTitle").textContent = ep[2];
+        document.getElementById("videoMeta").textContent = label(ep);
+        document.getElementById("videoFrame").innerHTML =
+          `<iframe src="https://www.youtube-nocookie.com/embed/${ep[3]}?autoplay=1&rel=0&playsinline=1" title="${esc(ep[2])}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`;
+        modal.showModal();
+      }
+      modal.addEventListener("close", () => {
+        document.getElementById("videoFrame").innerHTML = "";
+      });
+      modal.addEventListener("click", (e) => {
+        if (e.target === modal) modal.close();
+      });
+      document
+        .getElementById("videoClose")
+        .addEventListener("click", () => modal.close());
 
-// ============================================
-// CURSOR GLOW (warm ambient light following mouse)
-// ============================================
-const glow = document.getElementById('cursorGlow');
-document.addEventListener('mousemove', e => {
-  glow.style.left = e.clientX + 'px';
-  glow.style.top = e.clientY + 'px';
-});
+      // ============================================
+      // BOB ROSS RADIO: the real show via the YouTube IFrame API
+      // ============================================
+      const STATIONS = [
+        { id: "all", name: "All seasons", pick: () => true },
+        { id: "early", name: "The early years", pick: (e) => e[0] <= 10 },
+        {
+          id: "middle",
+          name: "Seasons 11 – 21",
+          pick: (e) => e[0] >= 11 && e[0] <= 21,
+        },
+        { id: "late", name: "The final seasons", pick: (e) => e[0] >= 22 },
+        {
+          id: "winter",
+          name: "Winter scenes",
+          pick: (e) =>
+            /winter|snow|frost|ice|arctic|cold|frozen|christmas|evergreen/i.test(
+              e[2],
+            ),
+        },
+      ];
+      let station = STATIONS[0],
+        queue = [],
+        qi = 0,
+        yt = null,
+        ytReady = false,
+        radioPlaying = false,
+        wantPlay = false;
 
-// ============================================
-// STATUS BAR
-// ============================================
-function updateStatusClock() {
-  const d = new Date();
-  const t = d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-  const el = document.getElementById('statusClock');
-  if (el) el.textContent = t;
-}
-updateStatusClock();
-setInterval(updateStatusClock, 1000);
+      function shuffle(a) {
+        a = a.slice();
+        for (let i = a.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+      }
+      function buildQueue() {
+        queue = shuffle(EPISODES.filter(station.pick));
+        qi = 0;
+      }
 
-// Status messages that rotate
-const statusMsgs = [
-  'Ready to paint',
-  'No mistakes, only happy accidents',
-  'All brushes clean',
-  'Canvas primed and ready',
-  'Liquid white applied',
-  'Happy little trees standing by',
-  'Mountains in the distance',
-  'Just relax and let it happen',
-];
-let statusIdx = 0;
-setInterval(() => {
-  statusIdx = (statusIdx + 1) % statusMsgs.length;
-  const el = document.getElementById('statusMsg');
-  if (el) {
-    el.style.opacity = '0';
-    setTimeout(() => {
-      el.textContent = statusMsgs[statusIdx];
-      el.style.opacity = '1';
-    }, 400);
-  }
-}, 8000);
-</script>
-</body>
+      function renderStations() {
+        document.getElementById("stations").innerHTML = STATIONS.map(
+          (s) =>
+            `<button class="chip" data-station="${s.id}" aria-pressed="${s === station}">${s.name}</button>`,
+        ).join("");
+      }
+      document.getElementById("stations").addEventListener("click", (e) => {
+        const b = e.target.closest("[data-station]");
+        if (!b) return;
+        station = STATIONS.find((s) => s.id === b.dataset.station);
+        renderStations();
+        buildQueue();
+        loadCurrent(radioPlaying || wantPlay);
+      });
+
+      function renderNow() {
+        const ep = queue[qi];
+        document.getElementById("nowTitle").textContent = noOrphan(ep[2]);
+        document.getElementById("nowSub").textContent = label(ep);
+        document.getElementById("radioFallbackLink").href =
+          `https://www.youtube.com/watch?v=${ep[3]}`;
+        document.getElementById("radioScreen").style.backgroundImage =
+          `url(${thumb(ep[3], "maxresdefault")})`;
+        const next = [1, 2, 3, 4, 5, 6].map((n) => queue[(qi + n) % queue.length]);
+        document.getElementById("upNext").innerHTML = next
+          .map(
+            (ep, n) => `
+    <li><button data-offset="${n + 1}">
+      <img src="${thumb(ep[3])}" alt="" width="80" height="45" loading="lazy">
+      <span class="txt"><span class="t">${esc(ep[2])}</span><span class="s">${label(ep)}</span></span>
+    </button></li>`,
+          )
+          .join("");
+      }
+      document.getElementById("upNext").addEventListener("click", (e) => {
+        const b = e.target.closest("[data-offset]");
+        if (!b) return;
+        qi = (qi + +b.dataset.offset) % queue.length;
+        loadCurrent(true);
+      });
+
+      function loadCurrent(autoplay) {
+        renderNow();
+        setBar(0, 0);
+        if (!ytReady) {
+          wantPlay = autoplay;
+          return;
+        }
+        const id = queue[qi][3];
+        autoplay ? yt.loadVideoById(id) : yt.cueVideoById(id);
+      }
+
+      function radioToggle() {
+        if (!ytReady) {
+          wantPlay = true;
+          return;
+        }
+        radioPlaying ? yt.pauseVideo() : yt.playVideo();
+      }
+      function radioPause() {
+        if (ytReady && radioPlaying) yt.pauseVideo();
+      }
+      function radioStep(d) {
+        qi = (qi + d + queue.length) % queue.length;
+        loadCurrent(true);
+      }
+
+      function setPlayingUI(on) {
+        radioPlaying = on;
+        document.getElementById("rPlayIcon").innerHTML = on
+          ? '<path d="M6 4h4v16H6zM14 4h4v16h-4z"/>'
+          : '<path d="M7 4.5v15l12.5-7.5z"/>';
+        document
+          .getElementById("rPlay")
+          .setAttribute("aria-label", on ? "Pause" : "Play");
+        document.getElementById("onAir").classList.toggle("live", on);
+        document.getElementById("onAirText").textContent = on
+          ? "On air"
+          : "Off air";
+      }
+
+      const fmt = (s) => {
+        s = Math.max(0, Math.floor(s || 0));
+        return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+      };
+      function setBar(t, d) {
+        document.getElementById("radioBar").style.width = d
+          ? (t / d) * 100 + "%"
+          : "0";
+        document.getElementById("tNow").textContent = fmt(t);
+        document.getElementById("tDur").textContent = fmt(d);
+      }
+      setInterval(() => {
+        if (ytReady && radioPlaying)
+          setBar(yt.getCurrentTime(), yt.getDuration());
+      }, 500);
+
+      document.getElementById("rPlay").addEventListener("click", radioToggle);
+      document
+        .getElementById("rPrev")
+        .addEventListener("click", () => radioStep(-1));
+      document
+        .getElementById("rNext")
+        .addEventListener("click", () => radioStep(1));
+      document.getElementById("heroRadio").addEventListener("click", () => {
+        if (ytReady) {
+          if (!radioPlaying) yt.playVideo();
+        } else wantPlay = true;
+      });
+
+      window.onYouTubeIframeAPIReady = function () {
+        yt = new YT.Player("radioPlayer", {
+          host: "https://www.youtube-nocookie.com",
+          videoId: queue[qi][3],
+          playerVars: { playsinline: 1, rel: 0 },
+          events: {
+            onReady: () => {
+              ytReady = true;
+              if (wantPlay) yt.playVideo();
+            },
+            onStateChange: (e) => {
+              if (e.data === YT.PlayerState.PLAYING) setPlayingUI(true);
+              else if (
+                e.data === YT.PlayerState.PAUSED ||
+                e.data === YT.PlayerState.CUED
+              )
+                setPlayingUI(false);
+              else if (e.data === YT.PlayerState.ENDED) radioStep(1);
+            },
+            // Usually means the page was opened as a local file
+            onError: () =>
+              document.getElementById("radioFallback").classList.add("show"),
+          },
+        });
+      };
+
+      renderStations();
+      buildQueue();
+      renderNow();
+      (function loadYT() {
+        const s = document.createElement("script");
+        s.src = "https://www.youtube.com/iframe_api";
+        document.head.appendChild(s);
+      })();
+
+      // ============================================
+      // SOUNDBOARD
+      // ============================================
+      let actx = null,
+        master = null;
+      const active = new Map();
+      const bufCache = new Map();
+
+      function audio() {
+        if (!actx) {
+          actx = new (window.AudioContext || window.webkitAudioContext)();
+          master = actx.createGain();
+          master.gain.value = document.getElementById("vol").value / 100;
+          master.connect(actx.destination);
+        }
+        if (actx.state === "suspended") actx.resume();
+        return actx;
+      }
+
+      // Seeded random so each channel gets its own, repeatable texture
+      function rng(seed) {
+        return () => {
+          seed |= 0;
+          seed = (seed + 0x6d2b79f5) | 0;
+          let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+          t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+          return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+        };
+      }
+
+      // One brush stroke: band-passed noise with a swept center and a soft envelope.
+      // grit adds wet paint crackle; tilt moves the envelope peak (0.5 = centered).
+      function stroke(d, sr, r, o) {
+        const N = d.length,
+          len = Math.floor(o.dur * sr),
+          start = Math.floor(o.t * sr),
+          tilt = o.tilt ?? 0.5,
+          shape = o.shape ?? 1.4;
+        let x1 = 0,
+          x2 = 0,
+          y1 = 0,
+          y2 = 0,
+          b0,
+          b2,
+          a1,
+          a2;
+        for (let i = 0; i < len; i++) {
+          const p = i / len;
+          if (i % 32 === 0) {
+            const f = o.f0 * Math.pow(o.f1 / o.f0, p);
+            const w = (2 * Math.PI * Math.min(f, sr * 0.45)) / sr,
+              al = Math.sin(w) / (2 * o.q),
+              a0 = 1 + al;
+            b0 = al / a0;
+            b2 = -al / a0;
+            a1 = (-2 * Math.cos(w)) / a0;
+            a2 = (1 - al) / a0;
+          }
+          let n = r() * 2 - 1;
+          if (o.grit && r() > 0.985) n *= 1 + o.grit * 6;
+          const y = b0 * n + b2 * x2 - a1 * y1 - a2 * y2;
+          x2 = x1;
+          x1 = n;
+          y2 = y1;
+          y1 = y;
+          const env = Math.pow(
+            p < tilt ? p / tilt : (1 - p) / (1 - tilt),
+            shape,
+          );
+          d[(start + i) % N] += y * env * o.amp;
+        }
+      }
+      // Brush handle knocking the easel leg
+      function thump(d, sr, r, o) {
+        const N = d.length,
+          start = Math.floor(o.t * sr),
+          len = Math.floor(0.22 * sr);
+        for (let i = 0; i < len; i++) {
+          const t = i / sr;
+          const body =
+            Math.sin(2 * Math.PI * o.f * t * (1 - t * 1.4)) * Math.exp(-t * 26);
+          const click = (r() * 2 - 1) * Math.exp(-t * 180) * 0.5;
+          const rattle = (r() * 2 - 1) * Math.exp(-t * 40) * 0.12;
+          d[(start + i) % N] += (body + click + rattle) * o.amp;
+        }
+      }
+
+      // Each pad is a little score of strokes over a seamless loop
+      const BRUSH_PADS = [
+        {
+          id: "sky",
+          name: "Sky strokes",
+          hint: "Two-inch brush, criss-cross",
+          paint: "#8DB7DD",
+          len: 8,
+          score(r, add) {
+            for (let t = 0, k = 0; t < 8; k++) {
+              add(stroke, {
+                t,
+                dur: 0.42 + r() * 0.12,
+                f0: k % 2 ? 2400 : 1700,
+                f1: k % 2 ? 1700 : 2500,
+                q: 0.9,
+                amp: 0.55,
+                tilt: 0.35,
+              });
+              t += 0.5 + r() * 0.12 + (k % 8 === 7 ? 0.9 : 0);
+            }
+          },
+        },
+        {
+          id: "clouds",
+          name: "Happy little clouds",
+          hint: "Scrubbing small circles",
+          paint: "#E9E4F0",
+          len: 8,
+          score(r, add) {
+            for (let t = 0; t < 8;) {
+              const n = 6 + Math.floor(r() * 5);
+              for (let i = 0; i < n; i++, t += 0.16 + r() * 0.04)
+                add(stroke, {
+                  t,
+                  dur: 0.19,
+                  f0: 1300,
+                  f1: 950,
+                  q: 1.3,
+                  amp: 0.38,
+                  shape: 1.1,
+                });
+              t += 0.6 + r() * 0.5;
+            }
+          },
+        },
+        {
+          id: "fan",
+          name: "Fan brush taps",
+          hint: "Tapping in leaves",
+          paint: "#8DB57A",
+          len: 8,
+          score(r, add) {
+            for (let t = 0; t < 8;) {
+              const n = 7 + Math.floor(r() * 6);
+              for (let i = 0; i < n; i++, t += 0.09 + r() * 0.08)
+                add(stroke, {
+                  t,
+                  dur: 0.035 + r() * 0.02,
+                  f0: 3200,
+                  f1: 2600,
+                  q: 1.6,
+                  amp: 0.75,
+                  shape: 2.2,
+                  tilt: 0.15,
+                });
+              t += 0.7 + r() * 0.6;
+            }
+          },
+        },
+        {
+          id: "mix",
+          name: "Knife mixing",
+          hint: "Paint on the palette",
+          paint: "#C99A4A",
+          len: 8,
+          score(r, add) {
+            for (let t = 0; t < 8; t += 0.38 + r() * 0.2)
+              add(stroke, {
+                t,
+                dur: 0.32 + r() * 0.1,
+                f0: 650 + r() * 150,
+                f1: 1050,
+                q: 2.2,
+                amp: 0.45,
+                grit: 0.7,
+                tilt: 0.4,
+              });
+          },
+        },
+        {
+          id: "mountain",
+          name: "Mountain pull",
+          hint: "Knife edge down the slope",
+          paint: "#5E7FA3",
+          len: 9,
+          score(r, add) {
+            for (let t = 0.2; t < 9; t += 2.1 + r() * 0.6) {
+              add(stroke, {
+                t,
+                dur: 1.3 + r() * 0.3,
+                f0: 2300,
+                f1: 1300,
+                q: 3,
+                amp: 0.5,
+                grit: 1,
+                tilt: 0.2,
+                shape: 0.9,
+              });
+              add(stroke, {
+                t: t + 0.05,
+                dur: 1.2,
+                f0: 5200,
+                f1: 3800,
+                q: 4,
+                amp: 0.12,
+                grit: 1.4,
+                tilt: 0.2,
+              });
+            }
+          },
+        },
+        {
+          id: "liquid",
+          name: "Liquid White",
+          hint: "A thin, wet coat",
+          paint: "#F4EEE3",
+          len: 10,
+          score(r, add) {
+            for (let t = 0; t < 10; t += 1.4 + r() * 0.5)
+              add(stroke, {
+                t,
+                dur: 2.4 + r() * 0.6,
+                f0: 520,
+                f1: 760,
+                q: 0.7,
+                amp: 0.32,
+                grit: 0.35,
+                shape: 1.8,
+              });
+          },
+        },
+        {
+          id: "devil",
+          name: "Beat the devil",
+          hint: "Brush on the easel leg",
+          paint: "#D2584F",
+          len: 6,
+          score(r, add) {
+            for (let t = 0.1; t < 6;) {
+              const n = 6 + Math.floor(r() * 4);
+              for (let i = 0; i < n; i++, t += 0.15 + r() * 0.03)
+                add(thump, { t, f: 92 + r() * 12, amp: 0.7 });
+              t += 1.4 + r() * 0.6;
+            }
+          },
+        },
+        {
+          id: "thinner",
+          name: "Odorless thinner",
+          hint: "Swish in the can",
+          paint: "#A9B4A0",
+          len: 7,
+          score(r, add) {
+            for (
+              let t = 0, k = 0;
+              t < 7;
+              k++, t += 0.24 + r() * 0.08 + (k % 6 === 5 ? 1.2 : 0)
+            )
+              add(stroke, {
+                t,
+                dur: 0.26,
+                f0: k % 2 ? 1300 : 800,
+                f1: k % 2 ? 800 : 1300,
+                q: 1.1,
+                amp: 0.4,
+                grit: 1.2,
+              });
+          },
+        },
+      ];
+
+      const SQUIRREL_PADS = [
+        {
+          id: "peapod",
+          name: "Peapod",
+          hint: "Grey squirrel chatter",
+          paint: "#9A8C7E",
+          src: "sounds/peapod-grey-squirrel.mp3",
+          loop: [1.5, 63.5],
+        },
+        {
+          id: "treetop",
+          name: "Treetop chirps",
+          hint: "Three squirrels, up high",
+          paint: "#B07A4E",
+          src: "sounds/treetop-chirps.mp3",
+          loop: [0, 40],
+        },
+        {
+          id: "snack",
+          name: "Snack time",
+          hint: "Chirping between bites",
+          paint: "#C9A06A",
+          src: "sounds/snack-time.mp3",
+          loop: [0, 36],
+        },
+        {
+          id: "alarm",
+          name: "Alarm call",
+          hint: "Douglas squirrel, Puget Sound",
+          paint: "#7D6A55",
+          src: "sounds/douglas-alarm.mp3",
+          loop: [0, 12],
+        },
+      ];
+      const ALL_PADS = [...BRUSH_PADS, ...SQUIRREL_PADS];
+
+      function renderPads(el, pads) {
+        document.getElementById(el).innerHTML = pads
+          .map(
+            (p) => `
+    <button class="sb-pad" data-pad="${p.id}" aria-pressed="false" style="--paint:${p.paint}">
+      <span class="swatch" aria-hidden="true"></span>
+      <span class="name">${p.name}<span class="hint">${p.hint}</span></span>
+      <span class="bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+    </button>`,
+          )
+          .join("");
+      }
+
+      function synthBuffer(p) {
+        const ctx = audio(),
+          sr = ctx.sampleRate,
+          N = Math.floor(sr * p.len);
+        const buf = ctx.createBuffer(2, N, sr);
+        for (let ch = 0; ch < 2; ch++) {
+          const d = buf.getChannelData(ch),
+            r = rng(ch * 977 + p.id.length * 131 + 7);
+          p.score(r, (fn, o) => fn(d, sr, r, { ...o, t: o.t + ch * 0.012 }));
+          let peak = 0;
+          for (let i = 0; i < N; i++) peak = Math.max(peak, Math.abs(d[i]));
+          const g = 0.5 / (peak || 1);
+          for (let i = 0; i < N; i++) d[i] *= g;
+        }
+        return { buf, gain: 1 };
+      }
+
+      async function fileBuffer(p) {
+        const res = await fetch(p.src);
+        const buf = await audio().decodeAudioData(await res.arrayBuffer());
+        // Level every recording to a similar loudness
+        const d = buf.getChannelData(0);
+        let s = 0,
+          n = 0;
+        for (let i = 0; i < d.length; i += 8) {
+          s += d[i] * d[i];
+          n++;
+        }
+        const rms = Math.sqrt(s / n);
+        return { buf, gain: Math.min(4, 0.09 / (rms || 1)) };
+      }
+
+      async function togglePad(btn) {
+        const id = btn.dataset.pad;
+        const ctx = audio();
+        if (active.has(id)) {
+          const { src, g } = active.get(id);
+          g.gain.cancelScheduledValues(ctx.currentTime);
+          g.gain.setValueAtTime(g.gain.value, ctx.currentTime);
+          g.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.6);
+          src.stop(ctx.currentTime + 0.65);
+          active.delete(id);
+          btn.setAttribute("aria-pressed", "false");
+          updateCount();
+          return;
+        }
+        const p = ALL_PADS.find((x) => x.id === id);
+        btn.classList.add("loading");
+        try {
+          if (!bufCache.has(id))
+            bufCache.set(id, p.src ? await fileBuffer(p) : synthBuffer(p));
+        } catch (err) {
+          btn.classList.remove("loading");
+          btn.querySelector(".hint").textContent = "Couldn’t load this one";
+          return;
+        }
+        btn.classList.remove("loading");
+        if (active.has(id)) return; // double-tap while loading
+        const { buf, gain } = bufCache.get(id);
+        const src = ctx.createBufferSource(),
+          g = ctx.createGain();
+        src.buffer = buf;
+        src.loop = true;
+        if (p.loop) {
+          src.loopStart = p.loop[0];
+          src.loopEnd = Math.min(p.loop[1], buf.duration);
+        }
+        g.gain.setValueAtTime(0, ctx.currentTime);
+        g.gain.linearRampToValueAtTime(gain, ctx.currentTime + 0.8);
+        src.connect(g);
+        g.connect(master);
+        src.start(0, p.loop ? p.loop[0] : 0);
+        active.set(id, { src, g });
+        btn.setAttribute("aria-pressed", "true");
+        updateCount();
+      }
+
+      function updateCount() {
+        const n = active.size;
+        document.getElementById("playingCount").textContent = n
+          ? `${n} sound${n > 1 ? "s" : ""} playing`
+          : "Nothing playing";
+      }
+
+      renderPads("sbBrush", BRUSH_PADS);
+      renderPads("sbSquirrel", SQUIRREL_PADS);
+      document.querySelector(".sb-groups").addEventListener("click", (e) => {
+        const b = e.target.closest(".sb-pad");
+        if (b) togglePad(b);
+      });
+      document.getElementById("vol").addEventListener("input", (e) => {
+        if (master)
+          master.gain.setTargetAtTime(
+            e.target.value / 100,
+            actx.currentTime,
+            0.05,
+          );
+      });
+      document
+        .getElementById("stopAll")
+        .addEventListener("click", () =>
+          document
+            .querySelectorAll('.sb-pad[aria-pressed="true"]')
+            .forEach((b) => togglePad(b)),
+        );
+
+      // ============================================
+      // PAINT: happy little tree generator
+      // ============================================
+      const cv = document.getElementById("paintCanvas"),
+        g2 = cv.getContext("2d");
+      const W = cv.width,
+        H = cv.height,
+        HORIZON = H * 0.66;
+      const SKIES = {
+        sunset: {
+          name: "Sunset",
+          stops: ["#3B3A6B", "#8E5C8A", "#E58C6A", "#F6C77E"],
+          mist: "#E7B79A",
+          ground: ["#3E3A2A", "#1C1A12"],
+          tree: [28, 40, 22],
+          light: [196, 168, 70],
+          rock: [62, 58, 92],
+        },
+        morning: {
+          name: "Morning",
+          stops: ["#6E9CC9", "#A9C8E2", "#E2E9E3", "#F3E9CF"],
+          mist: "#DDE6E6",
+          ground: ["#4D6B3C", "#22311B"],
+          tree: [24, 52, 32],
+          light: [170, 200, 96],
+          rock: [66, 80, 110],
+        },
+        winter: {
+          name: "Winter",
+          stops: ["#5F7590", "#93A6BC", "#CBD4DD", "#E9ECEF"],
+          mist: "#D5DCE3",
+          ground: ["#DDE3EA", "#A6B3C2"],
+          tree: [22, 44, 38],
+          light: [214, 226, 236],
+          rock: [70, 86, 112],
+        },
+        night: {
+          name: "Northern lights",
+          stops: ["#0B1428", "#163A4A", "#2F7A6A", "#122437"],
+          mist: "#3E6E78",
+          ground: ["#14211F", "#070C0C"],
+          tree: [8, 20, 18],
+          light: [86, 170, 140],
+          rock: [22, 34, 52],
+        },
+      };
+      let sky = "sunset",
+        tool = "tree",
+        items = [];
+
+      document.getElementById("skies").innerHTML = Object.entries(SKIES)
+        .map(
+          ([k, s]) =>
+            `<button class="chip" data-sky="${k}" aria-pressed="${k === sky}">${s.name}</button>`,
+        )
+        .join("");
+
+      const depth = (y) =>
+        Math.max(0, Math.min(1, (y - HORIZON) / (H - HORIZON))); // 0 far, 1 near
+      const mix = (a, b, t) => a.map((v, i) => Math.round(v + (b[i] - v) * t));
+      const hex = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+      const rgb = (c, a = 1) => `rgba(${c[0]},${c[1]},${c[2]},${a})`;
+
+      function drawSky(S) {
+        const gr = g2.createLinearGradient(0, 0, 0, HORIZON + 40);
+        S.stops.forEach((c, i) => gr.addColorStop(i / (S.stops.length - 1), c));
+        g2.fillStyle = gr;
+        g2.fillRect(0, 0, W, H);
+        if (sky !== "night") return;
+        // aurora curtains
+        g2.save();
+        g2.globalCompositeOperation = "screen";
+        for (let k = 0; k < 3; k++) {
+          const r = rng(40 + k);
+          for (let x = 0; x < W; x += 3) {
+            const y = 160 + k * 70 + Math.sin(x / 210 + k * 1.7) * 50 + r() * 6;
+            const gr2 = g2.createLinearGradient(0, y - 170, 0, y + 30);
+            gr2.addColorStop(0, "rgba(120,255,190,0)");
+            gr2.addColorStop(0.8, `rgba(120,255,190,${0.045 + r() * 0.025})`);
+            gr2.addColorStop(1, "rgba(120,255,190,0)");
+            g2.fillStyle = gr2;
+            g2.fillRect(x, y - 170, 3, 200);
+          }
+        }
+        g2.restore();
+      }
+
+      function drawCloud(it) {
+        const r = rng(it.seed),
+          s = 0.6 + (1 - it.y / HORIZON) * 0.7;
+        const n = 14 + Math.floor(r() * 10),
+          w = 260 * s;
+        const lit = sky === "night" ? "150,175,195" : "255,252,246";
+        const peak = sky === "night" ? 0.3 : 0.55;
+        for (let i = 0; i < n; i++) {
+          const cx = it.x + (r() - 0.5) * w,
+            cy = it.y + (r() - 0.5) * w * 0.18 - Math.abs(r() - 0.5) * 30 * s;
+          const rad = (40 + r() * 60) * s;
+          const gr = g2.createRadialGradient(
+            cx,
+            cy - rad * 0.3,
+            0,
+            cx,
+            cy,
+            rad,
+          );
+          gr.addColorStop(0, `rgba(${lit},${peak})`);
+          gr.addColorStop(0.6, `rgba(${lit},${peak * 0.4})`);
+          gr.addColorStop(1, `rgba(${lit},0)`);
+          g2.fillStyle = gr;
+          g2.beginPath();
+          g2.arc(cx, cy, rad, 0, Math.PI * 2);
+          g2.fill();
+        }
+      }
+
+      // x on a top-to-bottom polyline at height y
+      function xAt(pts, y) {
+        for (let i = 1; i < pts.length; i++) {
+          const [x0, y0] = pts[i - 1], [x1, y1] = pts[i];
+          if (y <= y1) return x0 + ((x1 - x0) * (y - y0)) / (y1 - y0 || 1);
+        }
+        return pts[pts.length - 1][0];
+      }
+
+      function drawMountain(it, S) {
+        const r = rng(it.seed),
+          peakX = it.x,
+          peakY = Math.min(it.y, HORIZON - 60),
+          base = HORIZON + 30,
+          h = base - peakY;
+        // jagged ridges from the peak down each side
+        const ridge = (dir) => {
+          const pts = [[peakX, peakY]];
+          let x = peakX, y = peakY;
+          while (y < base) {
+            x += dir * (12 + r() * 24);
+            y = Math.min(base, y + 8 + r() * 24);
+            pts.push([x, y]);
+          }
+          return pts;
+        };
+        const left = ridge(-1), right = ridge(1);
+        // the crease that splits light from shadow
+        const spine = [[peakX, peakY]];
+        for (let x = peakX, y = peakY; y < base; ) {
+          x += (r() - 0.35) * 18;
+          y = Math.min(base, y + 14 + r() * 20);
+          spine.push([x, y]);
+        }
+        const path = new Path2D();
+        path.moveTo(left[left.length - 1][0], base);
+        for (let i = left.length - 1; i >= 0; i--) path.lineTo(...left[i]);
+        right.forEach((p) => path.lineTo(...p));
+        path.closePath();
+
+        const mist = hex(S.mist), dark = S.rock;
+        const gr = g2.createLinearGradient(0, peakY, 0, base);
+        gr.addColorStop(0, rgb(dark));
+        gr.addColorStop(0.7, rgb(mix(dark, mist, 0.45)));
+        gr.addColorStop(1, rgb(mist));
+        g2.fillStyle = gr;
+        g2.fill(path);
+
+        g2.save();
+        g2.clip(path);
+        // shadow plane left of the crease
+        const shade = new Path2D();
+        shade.moveTo(left[left.length - 1][0] - 20, base);
+        for (let i = left.length - 1; i >= 0; i--) shade.lineTo(...left[i]);
+        spine.forEach((p) => shade.lineTo(...p));
+        shade.closePath();
+        const sg = g2.createLinearGradient(0, peakY, 0, base);
+        sg.addColorStop(0, rgb(mix(dark, [10, 12, 30], 0.4), 0.6));
+        sg.addColorStop(0.75, rgb(mix(dark, mist, 0.3), 0.2));
+        sg.addColorStop(1, rgb(mist, 0));
+        g2.fillStyle = sg;
+        g2.fill(shade);
+
+        // palette knife: short, broad pulls from the ridge down toward the crease
+        const snow = sky === "night" ? [150, 190, 200] : [250, 246, 240];
+        g2.lineCap = "round";
+        const pull = (x, y, t) => {
+          const len = (16 + r() * 36) * (1 - t * 0.4);
+          g2.strokeStyle = rgb(mix(snow, mist, Math.min(1, t * 0.9)), Math.pow(1 - t, 2.4) * 0.9);
+          g2.lineWidth = 5 + r() * 8;
+          g2.beginPath();
+          g2.moveTo(x, y);
+          g2.lineTo(x - len * 0.55, y + len);
+          g2.stroke();
+        };
+        for (const [x, y] of right) {
+          const t = (y - peakY) / h;
+          if (t > 0.7) break;
+          pull(x - 4 - r() * 6, y + 2 + r() * 4, t);
+        }
+        for (let i = 0; i < 60 * (h / 300); i++) {
+          const t = r() * r() * 0.5, y = peakY + 6 + t * h;
+          const sx = xAt(spine, y), rx = xAt(right, y);
+          pull(sx + (rx - sx) * (0.2 + r() * 0.75), y, t + 0.08);
+        }
+        g2.restore();
+      }
+
+      function drawGround(S) {
+        // mist settles where the mountains meet the land
+        const m = g2.createLinearGradient(0, HORIZON - 70, 0, HORIZON + 40);
+        m.addColorStop(0, rgb(hex(S.mist), 0));
+        m.addColorStop(1, rgb(hex(S.mist), 0.9));
+        g2.fillStyle = m;
+        g2.fillRect(0, HORIZON - 70, W, 110);
+        const r = rng(9), gr = g2.createLinearGradient(0, HORIZON, 0, H);
+        gr.addColorStop(0, S.ground[0]);
+        gr.addColorStop(1, S.ground[1]);
+        g2.fillStyle = gr;
+        g2.beginPath();
+        g2.moveTo(0, HORIZON + 26);
+        for (let x = 0; x <= W; x += 40) g2.lineTo(x, HORIZON + 22 + Math.sin(x / 260) * 10 + r() * 6);
+        g2.lineTo(W, H);
+        g2.lineTo(0, H);
+        g2.closePath();
+        g2.fill();
+        // a few soft grass strokes, longer up close
+        const g0 = hex(S.ground[0]);
+        g2.lineCap = "round";
+        for (let i = 0; i < 220; i++) {
+          const y = HORIZON + 34 + Math.pow(r(), 1.4) * (H - HORIZON - 34), z = depth(y);
+          const x = r() * W, len = (8 + r() * 36) * (0.3 + z);
+          g2.strokeStyle = rgb(mix(g0, r() < 0.5 ? [0, 0, 0] : S.light, 0.25), 0.18 + z * 0.15);
+          g2.lineWidth = 1 + z * 2.5;
+          g2.beginPath();
+          g2.moveTo(x, y);
+          g2.lineTo(x + len, y + (r() - 0.5) * 3);
+          g2.stroke();
+        }
+      }
+
+      function drawTree(it, S) {
+        const r = rng(it.seed), z = depth(it.y);
+        const hgt = (60 + z * 420) * (0.75 + r() * 0.5), maxW = hgt * (0.28 + r() * 0.08);
+        const haze = 1 - z, mistC = hex(S.mist);
+        const base = mix(S.tree, mistC, haze * 0.65);
+        const light = mix(mix(S.light, S.tree, 0.35), mistC, haze * 0.55);
+        g2.lineCap = "round";
+        // trunk
+        g2.strokeStyle = rgb(mix([58, 40, 28], mistC, haze * 0.6));
+        g2.lineWidth = Math.max(1.5, hgt * 0.018);
+        g2.beginPath();
+        g2.moveTo(it.x, it.y);
+        g2.lineTo(it.x, it.y - hgt);
+        g2.stroke();
+        // fan brush: rows of downward dabs that widen toward the bottom
+        const rows = Math.floor(hgt / Math.max(2.4, hgt * 0.022));
+        for (let i = 0; i < rows; i++) {
+          const p = i / rows, y = it.y - hgt + p * hgt * 0.96;
+          const w = maxW * Math.pow(p, 0.85) * (0.75 + r() * 0.45) + 2;
+          const dabs = 2 + Math.floor(w / 6);
+          for (let k = 0; k < dabs; k++) {
+            const side = r() < 0.5 ? -1 : 1, reach = w * (0.3 + r() * 0.7);
+            g2.strokeStyle = rgb(mix(base, [0, 0, 0], r() * 0.3), 0.92);
+            g2.lineWidth = Math.max(1.2, hgt * 0.016 * (0.6 + r()));
+            g2.beginPath();
+            g2.moveTo(it.x, y);
+            g2.lineTo(it.x + side * reach, y + reach * 0.35 + r() * 4);
+            g2.stroke();
+          }
+        }
+        // a whisper of light on the sunny side
+        for (let i = 0; i < rows * 0.4; i++) {
+          const p = 0.12 + r() * 0.82, y = it.y - hgt + p * hgt * 0.95, w = maxW * Math.pow(p, 0.85);
+          g2.strokeStyle = rgb(light, 0.3 + r() * 0.3);
+          g2.lineWidth = Math.max(1, hgt * 0.011);
+          const sx = it.x + w * (0.2 + r() * 0.55);
+          g2.beginPath();
+          g2.moveTo(sx, y);
+          g2.lineTo(sx + w * 0.16, y + w * 0.1);
+          g2.stroke();
+        }
+      }
+
+      function drawBush(it, S) {
+        const r = rng(it.seed), z = depth(it.y), s = 0.3 + z * 1.3, haze = 1 - z, mistC = hex(S.mist);
+        const base = mix(S.tree, mistC, haze * 0.6);
+        const light = mix(mix(S.light, S.tree, 0.45), mistC, haze * 0.5);
+        for (let i = 0; i < 80; i++) {
+          const a = r() * Math.PI, rad = r() * 70 * s;
+          g2.fillStyle = rgb(mix(base, [0, 0, 0], r() * 0.3), 0.9);
+          g2.beginPath();
+          g2.arc(it.x + Math.cos(a) * rad * 1.5, it.y - Math.sin(a) * rad * 0.8, (3 + r() * 6) * s, 0, Math.PI * 2);
+          g2.fill();
+        }
+        for (let i = 0; i < 30; i++) {
+          const a = 0.2 + r() * 1.1, rad = (0.45 + r() * 0.5) * 70 * s;
+          g2.fillStyle = rgb(light, 0.45 + r() * 0.3);
+          g2.beginPath();
+          g2.arc(it.x + Math.cos(a) * rad * 1.3, it.y - Math.sin(a) * rad * 0.85, (1.5 + r() * 3) * s, 0, Math.PI * 2);
+          g2.fill();
+        }
+      }
+
+      function paint() {
+        const S = SKIES[sky];
+        drawSky(S);
+        items.filter((i) => i.type === "cloud").forEach((i) => drawCloud(i));
+        // taller mountains sit behind smaller ones
+        items
+          .filter((i) => i.type === "mountain")
+          .sort((a, b) => a.y - b.y)
+          .forEach((i) => drawMountain(i, S));
+        drawGround(S);
+        items
+          .filter((i) => i.type === "tree" || i.type === "bush")
+          .sort((a, b) => a.y - b.y)
+          .forEach((i) =>
+            i.type === "tree" ? drawTree(i, S) : drawBush(i, S),
+          );
+      }
+
+      function place(x, y) {
+        if (tool === "cloud" || tool === "mountain")
+          y = Math.min(y, HORIZON - 80);
+        else y = Math.max(y, HORIZON + 30);
+        items.push({ type: tool, x, y, seed: Math.floor(Math.random() * 1e9) });
+        paint();
+      }
+
+      function toCanvas(e) {
+        const b = cv.getBoundingClientRect();
+        return [
+          ((e.clientX - b.left) / b.width) * W,
+          ((e.clientY - b.top) / b.height) * H,
+        ];
+      }
+      let drag = null;
+      cv.addEventListener("pointerdown", (e) => {
+        const [x, y] = toCanvas(e);
+        place(x, y);
+        drag = [x, y];
+        cv.setPointerCapture(e.pointerId);
+      });
+      cv.addEventListener("pointermove", (e) => {
+        if (!drag || (tool !== "tree" && tool !== "bush")) return;
+        const [x, y] = toCanvas(e);
+        if (Math.hypot(x - drag[0], y - drag[1]) > 46) {
+          place(x, y);
+          drag = [x, y];
+        }
+      });
+      cv.addEventListener("pointerup", () => {
+        drag = null;
+      });
+
+      const TIPS = {
+        tree: "Every tree needs a friend. Drag to grow a forest.",
+        bush: "Little bushes live right at the water’s edge, or anywhere you want them.",
+        mountain:
+          "Click high for a big mountain. The mist settles at the base on its own.",
+        cloud:
+          "Clouds float wherever they like. Higher means smaller and farther away.",
+      };
+      document.getElementById("tools").addEventListener("click", (e) => {
+        const b = e.target.closest("[data-tool]");
+        if (!b) return;
+        tool = b.dataset.tool;
+        document
+          .querySelectorAll("#tools .chip")
+          .forEach((c) => c.setAttribute("aria-pressed", c === b));
+        document.getElementById("paintTip").textContent = TIPS[tool];
+      });
+      function setSky(k) {
+        sky = k;
+        document
+          .querySelectorAll("#skies .chip")
+          .forEach((c) => c.setAttribute("aria-pressed", c.dataset.sky === k));
+      }
+      document.getElementById("skies").addEventListener("click", (e) => {
+        const b = e.target.closest("[data-sky]");
+        if (b) {
+          setSky(b.dataset.sky);
+          paint();
+        }
+      });
+      document.getElementById("paintUndo").addEventListener("click", () => {
+        items.pop();
+        paint();
+      });
+      document.getElementById("paintClear").addEventListener("click", () => {
+        const f = document.getElementById("paintFrame");
+        f.classList.remove("shake");
+        void f.offsetWidth;
+        f.classList.add("shake");
+        setTimeout(() => {
+          items = [];
+          paint();
+        }, 280);
+      });
+      function happyAccident() {
+        const R = Math.random;
+        items = [];
+        const add = (type, x, y) =>
+          items.push({ type, x, y, seed: Math.floor(R() * 1e9) });
+        for (let i = 0; i < 2 + R() * 3; i++)
+          add("cloud", R() * W, 80 + R() * 260);
+        for (let i = 0; i < 1 + R() * 2; i++)
+          add("mountain", 300 + R() * (W - 600), 140 + R() * 200);
+        const side = R() < 0.5;
+        for (let i = 0; i < 9; i++)
+          add(
+            "tree",
+            side ? W - R() * 520 : R() * 520,
+            HORIZON + 40 + R() * (H - HORIZON - 60),
+          );
+        for (let i = 0; i < 4; i++)
+          add("tree", R() * W, HORIZON + 30 + R() * 50);
+        for (let i = 0; i < 3; i++)
+          add("bush", R() * W, HORIZON + 80 + R() * (H - HORIZON - 100));
+        paint();
+      }
+      document.getElementById("paintRandom").addEventListener("click", () => {
+        const keys = Object.keys(SKIES);
+        setSky(keys[Math.floor(Math.random() * keys.length)]);
+        happyAccident();
+      });
+      document.getElementById("paintSave").addEventListener("click", () => {
+        const a = document.createElement("a");
+        a.download = "my-happy-little-painting.png";
+        a.href = cv.toDataURL("image/png");
+        a.click();
+      });
+      happyAccident();
+
+      // ============================================
+      // QUOTES
+      // ============================================
+      const QUOTES = [
+        "We don't make mistakes, just happy little accidents.",
+        "Talent is a pursued interest. Anything that you're willing to practice, you can do.",
+        "There's nothing wrong with having a tree as a friend.",
+        "I think there's an artist hidden at the bottom of every single one of us.",
+        "Everybody needs a friend.",
+        "This is your world, and you can do anything you want.",
+      ];
+      let qn = 0;
+      setInterval(() => {
+        const q = document.getElementById("quote");
+        q.classList.add("fade");
+        setTimeout(() => {
+          qn = (qn + 1) % QUOTES.length;
+          q.textContent = `“${noOrphan(QUOTES[qn])}”`;
+          q.classList.remove("fade");
+        }, 900);
+      }, 11000);
+
+      // ============================================
+      // INIT
+      // ============================================
+      renderSeasonBar();
+      renderEpisodes();
+
+      const io = new IntersectionObserver(
+        (es) =>
+          es.forEach((e) => {
+            if (e.isIntersecting) {
+              e.target.classList.add("in");
+              io.unobserve(e.target);
+            }
+          }),
+        { threshold: 0.12 },
+      );
+      document.querySelectorAll(".reveal").forEach((el) => io.observe(el));
+    </script>
+  </body>
 </html>
